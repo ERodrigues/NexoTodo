@@ -45,7 +45,7 @@ Registro inicial: 24/10/2026. Fonte das confirmações: instruções do usuário
 | Item | Por que importa | Deve estar resolvido antes de |
 | --- | --- | --- |
 | Versões e ferramentas auxiliares compatíveis. | Execução reproduzível e testes. | Primeiro item técnico. |
-| Escrita nos metadados Git e base inicial para comparação entre branches. | Criação de branches, commits e PRs. | Primeiro registro Git e primeira publicação. |
+| Base na branch principal para comparação entre branches. | A documentação começou em uma branch local de um repositório sem commits; uma PR exige uma base de comparação adequada. | Primeira publicação de PR. |
 | Remoto e plano do GitHub. | Publicação de PR e disponibilidade de proteção automática em repositório privado. | Configurar proteções e publicar. |
 | Dispositivos/navegadores e acesso seguro para push. | Particularidades do iOS e exigências de HTTPS/localhost. | Validação técnica de push. |
 | Fuso inicial da conta; proposta `America/Sao_Paulo`. | Horário do lembrete e limites dos relatórios. | Prazos/agendamento/analítico. |
@@ -63,4 +63,5 @@ Não bloquear toda a construção por decisões que só afetam etapas posteriore
 - Cadastro pessoal retirado do MVP; login continua obrigatório.
 - Validação local após implementação e testes registrada como parte do fluxo de entrega.
 - Restrição de planejamento sem downloads/instalações mantida.
+- Acesso de escrita ao Git local autorizado; branch `docs/planejamento-mvp` criada e documentação registrada em commits pequenos, sem publicação remota.
 - As demais regras detalhadas permanecem propostas quando não confirmadas explicitamente.

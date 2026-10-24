@@ -1,0 +1,37 @@
+# NexoTodo — documentação do projeto
+
+Atualizado em: 24/10/2026.
+
+O NexoTodo é um gerenciador pessoal de tarefas para navegador, inspirado em GTD. Este conjunto de documentos registra o planejamento do MVP; não representa funcionalidades já implementadas.
+
+## Como ler
+
+| Documento | Conteúdo |
+| --- | --- |
+| [Produto e escopo](01-produto-e-escopo.md) | Necessidade, público, requisitos, limites e evolução. |
+| [Regras de negócio](02-regras-de-negocio.md) | Estados, Inbox, projetos, categorias, filtros, histórico, métricas e notificações. |
+| [Arquitetura e segurança](03-arquitetura-e-seguranca.md) | Stack confirmada, estrutura proposta, autenticação, proteção e persistência. |
+| [Qualidade e validação](04-qualidade-e-validacao.md) | TDD, cobertura, testes, commits, branches, PRs e validação local. |
+| [Backlog e entregas](05-backlog-e-entregas.md) | Etapas, implementações pequenas, dependências e critérios de aceite. |
+| [Decisões e pendências](06-decisoes-e-pendencias.md) | O que foi confirmado e o que ainda é proposta. |
+
+## Situação atual
+
+- Produto: **NexoTodo**.
+- Diretório: `/Users/ederrodrigues/Documents/projects/NexoTodo`.
+- Trabalho autorizado nesta etapa: planejar e documentar em `docs/`.
+- Não baixar ou instalar Java, Spring Boot ou outras dependências nesta etapa.
+- Não implementar funcionalidades nem iniciar serviços nesta etapa.
+- A existência do diretório e do Git local não autoriza criar um repositório remoto.
+
+## Como interpretar os documentos
+
+- **Confirmado:** requisito ou decisão explicitamente informado pelo usuário.
+- **Proposto:** recomendação para tornar a implementação verificável; pode ser revista antes da implementação correspondente.
+- **Pendente:** escolha necessária antes da entrega que depende dela, sem impedir o restante do planejamento.
+
+As regras detalhadas são propostas quando ainda não houve confirmação explícita. Em caso de divergência, prevalecem as instruções mais recentes do usuário. Toda mudança de decisão deve atualizar os documentos afetados e o registro de decisões.
+
+## Próxima entrega
+
+Revisar esta especificação e preparar os itens iniciais do backlog. As futuras implementações terão branch própria, commits pequenos, testes pertinentes, execução local para validação do usuário e uma PR ao final.
