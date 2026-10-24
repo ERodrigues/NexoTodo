@@ -1,0 +1,116 @@
+# Sistema operacional e arquivos temporários
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+*.tmp
+tmp/
+temp/
+
+# Configurações locais de IDE; configurações compartilhadas do VS Code são versionáveis
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+**/.vscode/*.local.json
+
+# Java / Maven / Gradle: saídas e caches, mantendo wrappers versionáveis
+target/
+build/
+out/
+.gradle/
+.m2/
+*.class
+*.war
+*.ear
+
+# React / TypeScript / Vite
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+
+# Cobertura e relatórios gerados de testes
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+blob-report/
+
+# Logs e diagnósticos locais
+logs/
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+hs_err_pid*
+replay_pid*
+*.hprof
+*.jfr
+
+# Variáveis de ambiente; exemplos versionados devem conter somente dados fictícios
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.template
+!.env.*.template
+!.env.sample
+!.env.*.sample
+
+# Configuração local Spring e Compose; configurações compartilhadas são versionáveis
+application-local.yml
+application-local.yaml
+application-local.properties
+application-secrets.yml
+application-secrets.yaml
+application-secrets.properties
+compose.local.yml
+compose.local.yaml
+docker-compose.local.yml
+docker-compose.local.yaml
+
+# Segredos, credenciais, chaves privadas e keystores locais
+.secrets/
+.local/
+.aws/
+/secrets/
+/credentials/
+/keys/
+/infra/secrets/
+/infra/keys/
+.pgpass
+.pg_service.conf
+.netrc
+.npmrc.local
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Dados locais PostgreSQL, volumes, dumps e backups; migrações *.sql são versionáveis
+/data/
+/infra/data/
+/infra/volumes/
+pgdata/
+backups/
+dumps/
+*.dump
+*.pgdump
+*.backup
+*.sql.gz
+*.sql.bz2
+*.sql.xz
+
+# Manter versionáveis: AGENTS.md, docs/, .github/, .mvn/, gradle/wrapper/,
+# scripts de wrapper, lockfiles, migrações e configurações compartilhadas sem segredos.
