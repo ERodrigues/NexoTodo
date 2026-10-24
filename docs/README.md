@@ -20,6 +20,10 @@ O NexoTodo é um gerenciador pessoal de tarefas para navegador, inspirado em GTD
 - Produto: **NexoTodo**.
 - Diretório: `/Users/ederrodrigues/Documents/projects/NexoTodo`.
 - Trabalho autorizado nesta etapa: planejar e documentar em `docs/`.
+- Backend definido em Java 21 LTS; política de suporte do Spring e adequação de versões estáveis do React detalhadas em [Arquitetura](03-arquitetura-e-seguranca.md).
+- Fluxo definido: `main`, Trunk Based Development e repositório remoto inicialmente público.
+- Push da primeira versão via navegador; fuso `America/Sao_Paulo`.
+- Senhas fortes; título e projeto até 100 caracteres, categoria até 50 e descrição em BLOB.
 - Não baixar ou instalar Java, Spring Boot ou outras dependências nesta etapa.
 - Não implementar funcionalidades nem iniciar serviços nesta etapa.
 - A existência do diretório e do Git local não autoriza criar um repositório remoto.
@@ -34,4 +38,4 @@ As regras detalhadas são propostas quando ainda não houve confirmação explí
 
 ## Próxima entrega
 
-Revisar esta especificação e preparar os itens iniciais do backlog. As futuras implementações terão branch própria, commits pequenos, testes pertinentes, execução local para validação do usuário e uma PR ao final.
+Revisar esta especificação e preparar os itens iniciais do backlog. As futuras implementações terão branches curtas a partir de `main`, commits pequenos, testes pertinentes, execução local para validação do usuário e uma PR para `main` ao final.

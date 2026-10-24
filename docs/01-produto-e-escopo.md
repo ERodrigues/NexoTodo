@@ -35,11 +35,15 @@ O único dado de conteúdo obrigatório ao criar uma tarefa é o título. Classi
 
 ## Restrições confirmadas
 
-- Java com Spring Boot no backend; React com TypeScript e Vite no frontend; PostgreSQL no banco.
+- Java 21 LTS com Spring Boot no backend; React com TypeScript e Vite no frontend; PostgreSQL no banco. A exigência de suporte prolongado para Spring e React e suas particularidades estão em [Arquitetura](03-arquitetura-e-seguranca.md).
 - Um monorepo; arquitetura inicial de monólito modular.
 - Desenvolvimento por TDD, com testes unitários para as funcionalidades criadas.
 - Cobertura de testes de pelo menos 85%; a política de medição está proposta em [Qualidade](04-qualidade-e-validacao.md).
-- Uma branch por nova implementação, commits pequenos e PR ao final.
+- Branch principal `main`, com Trunk Based Development: branches curtas por implementação, commits pequenos e PR para `main`.
+- Repositório remoto inicialmente público; essa decisão não publica a aplicação nem os dados de uso.
+- Push exclusivamente pelo navegador via Web Push na primeira versão.
+- Fuso do MVP: `America/Sao_Paulo` (São Paulo).
+- Senhas fortes; título da tarefa e nome de projeto com até 100 caracteres; nome de categoria com até 50; descrição opcional como conteúdo longo em BLOB.
 - Após implementar e obter os resultados dos testes, disponibilizar uma versão local para o usuário testar e validar.
 - Documentação das regras e definições dentro de `docs/`.
 - Proteção de credenciais e de quaisquer dados pessoais que venham a existir em evoluções.

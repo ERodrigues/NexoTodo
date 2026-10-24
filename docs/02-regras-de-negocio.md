@@ -7,8 +7,8 @@ Estas regras detalham os requisitos. As confirmações e as propostas ainda revi
 | Informação | Regra |
 | --- | --- |
 | Identificador | Técnico, opaco e estável; não derivado da identidade do usuário. |
-| Título | Obrigatório; espaços em branco não satisfazem a obrigatoriedade. |
-| Descrição | Opcional. |
+| Título | Obrigatório, com até 100 caracteres; espaços em branco não satisfazem a obrigatoriedade. |
+| Descrição | Opcional; conteúdo longo, persistido como BLOB, sem limite de caracteres de negócio definido. |
 | Prazo | Data opcional; representa o dia esperado para finalizar, não a conclusão efetiva. |
 | Projeto | Opcional, no máximo um por tarefa. |
 | Categorias | Opcionais, várias por tarefa, sem associações duplicadas. |
@@ -16,7 +16,11 @@ Estas regras detalham os requisitos. As confirmações e as propostas ainda revi
 | Estado | Aberta, concluída ou cancelada. |
 | Datas de operação | Criação, alteração e eventos de encerramento/reabertura são registrados pelo sistema. |
 
-**Proposto:** permitir títulos repetidos; tarefas com o mesmo título continuam sendo itens distintos. Limites de tamanho e volume devem ser definidos antes dos formulários correspondentes.
+**Proposto:** permitir títulos repetidos; tarefas com o mesmo título continuam sendo itens distintos.
+
+**Confirmado:** os limites são 100 caracteres para título da tarefa, 100 para nome de projeto e 50 para nome de categoria. A descrição é um campo BLOB; isso não inclui upload de arquivos.
+
+**Proposto:** contar pontos de código Unicode no conteúdo legível, com a mesma regra no frontend e no backend, antes da criptografia. Rejeitar valores acima do limite com erro por campo, sem truncar silenciosamente. O armazenamento cifrado deve comportar o acréscimo de tamanho da criptografia. Limites técnicos de payload/volume para a descrição e limites dos demais campos serão definidos antes dos formulários correspondentes; BLOB não significa capacidade ilimitada.
 
 ## Estados e transições
 
@@ -38,6 +42,7 @@ Cancelamento não é exclusão definitiva. Exclusão definitiva não faz parte d
 
 ## Inbox e projetos
 
+- **Confirmado:** nome de projeto com até 100 caracteres, tanto na criação quanto na renomeação.
 - Sem projeto, uma tarefa aberta aparece no Inbox.
 - Selecionar um projeto na criação é permitido; o Inbox é o destino padrão quando nenhum é escolhido.
 - Associar a um projeto retira a tarefa do Inbox; desassociar devolve ao Inbox.
@@ -51,6 +56,7 @@ No MVP, Inbox significa ausência de projeto. Distinguir uma tarefa avulsa já e
 
 ## Categorias
 
+- **Confirmado:** nome de categoria com até 50 caracteres, tanto na criação quanto na renomeação.
 - Associar ou remover uma categoria de uma tarefa não altera outras tarefas.
 - Remover o vínculo não exclui a categoria do catálogo.
 - **Proposto:** permitir criar, renomear, arquivar e reativar categorias.
@@ -93,15 +99,15 @@ Existem duas consultas: lista de tarefas encerradas e linha do tempo de uma tare
 
 ## Datas e fuso
 
-- Prazo é uma data de calendário no fuso configurado para a conta.
-- Eventos são instantes armazenados em UTC e apresentados no fuso da conta.
-- O fuso deve ser um identificador IANA; o valor inicial proposto é `America/Sao_Paulo`, a confirmar antes de implementar lembretes.
+- Prazo é uma data de calendário no fuso do MVP: `America/Sao_Paulo`.
+- Eventos são instantes armazenados em UTC e apresentados em `America/Sao_Paulo`.
+- **Confirmado:** São Paulo é o fuso da primeira versão. Usar o identificador IANA `America/Sao_Paulo` para a solicitação “America/SP”; não usar essa abreviação na configuração nem substituí-la por um deslocamento UTC fixo. Uma preferência editável de fuso não é requisito do MVP.
 - **Proposto:** tarefa aberta sem conclusão é atrasada a partir do dia seguinte ao prazo, no fuso da conta.
 - Testes usam relógio controlado; não dependem da data real da execução.
 
 ## Notificações
 
-**Confirmado:** push às 9h no dia do prazo, no fuso do usuário.
+**Confirmado:** push às 9h no dia do prazo em `America/Sao_Paulo`, exclusivamente pelo navegador via Web Push na primeira versão. Não há canal de push nativo no MVP.
 
 Regras complementares propostas:
 
@@ -118,7 +124,7 @@ Regras complementares propostas:
 11. Uma notificação já enviada pode aparecer depois que a tarefa foi encerrada; ao abrir, mostrar o estado atual.
 12. **Proposto:** mensagem genérica, sem título ou descrição da tarefa na tela bloqueada. Ao tocar, exigir autenticação para consultar os detalhes.
 
-HTTPS, permissão e suporte do navegador são necessários. No iOS/iPadOS, o Web Push exige a aplicação adicionada à tela inicial. Validar nos dispositivos escolhidos antes de considerar o requisito atendido.
+HTTPS, permissão, service worker e suporte do navegador são necessários. Navegador e sistema operacional de validação ainda precisam ser especificados. No iOS/iPadOS, o Web Push exige a aplicação adicionada à tela inicial; o uso apenas em aba nesses sistemas não atende ao requisito. Registrar essa restrição na matriz de compatibilidade e validar em um navegador compatível antes de considerar o requisito atendido.
 
 Permissão negada ou navegador incompatível não impede usar as tarefas. A interface deve informar a condição e continuar sinalizando hoje/atrasadas; essa sinalização não substitui o aceite do push em ambiente compatível.
 

@@ -5,13 +5,14 @@
 - TDD no desenvolvimento das funcionalidades.
 - Testes unitários para as funcionalidades criadas.
 - Cobertura mínima de 85%.
-- Uma branch por nova implementação, commits pequenos e PR ao final.
+- Branch principal `main` e Trunk Based Development, com branches curtas por implementação, commits pequenos e PR ao final para `main`.
+- Repositório remoto inicialmente público.
 - Após implementar e obter o resultado dos testes, disponibilizar a versão local para o usuário testar e validar.
 
 ## Ciclo de uma implementação
 
 1. Selecionar um item pequeno do backlog, com dependências satisfeitas e critérios de aceite.
-2. Criar branch específica a partir da base adequada e atualizada.
+2. Criar branch curta e específica a partir da `main` atualizada.
 3. Escrever um teste que evidencia o comportamento ausente e observar a falha esperada.
 4. Implementar o mínimo necessário e observar o teste passar.
 5. Refatorar preservando os testes e repetir o ciclo nos próximos comportamentos do item.
@@ -21,13 +22,17 @@
 9. Entregar roteiro, endereço e identificação da versão para validação do usuário.
 10. Abrir a PR com as evidências disponíveis e o estado da validação local; atualizar o resultado após o teste do usuário.
 11. Ajustar falhas na mesma branch/PR, repetir os testes afetados e disponibilizar a versão corrigida.
-12. Integrar somente após validação e aprovação do usuário.
+12. Integrar em `main` somente após validação e aprovação do usuário; encerrar a branch integrada e iniciar o próximo item a partir da `main` atualizada.
 
 Não esperar a aprovação do usuário para preparar o ambiente local e as evidências. A validação deve ocorrer sobre uma entrega concreta. Abrir a PR não equivale a aprovar ou integrar.
 
 O ciclo vermelho/verde do TDD ocorre localmente. Não é necessário publicar commits deliberadamente quebrados para demonstrá-lo.
 
 ## Branches e commits
+
+**Confirmado:** `main` é o trunk e a única branch permanente de desenvolvimento. Adotar Trunk Based Development com branches de curta duração e integração frequente por PR. Não criar `develop` nem branches permanentes por etapa ou ambiente.
+
+**Proposto:** dimensionar cada implementação para integrar em até um ou dois dias de trabalho, mantendo `main` utilizável e com verificações passando. Se um item exigir mais, dividi-lo em incrementos pequenos e verificáveis. A espera pela validação do usuário não dispensa a aprovação nem autoriza integrar automaticamente.
 
 Padrões propostos:
 
@@ -40,9 +45,9 @@ Uma etapa pode conter várias implementações e PRs. Uma branch não deve acumu
 
 Proposta de integração: preservar os commits para consulta da evolução, em vez de consolidar todos automaticamente. Não fazer merge automático ou iniciar implementação dependente sobre uma base ainda não validada sem deixar essa dependência explícita.
 
-Quando disponível no plano do GitHub, proteger a branch principal contra alterações diretas e exigir as verificações pertinentes. Uma conta pessoal desenvolvendo sozinha pode não conseguir formalizar autoaprovação no GitHub; a validação registrada pelo usuário continua sendo necessária.
+Planejar proteção de `main` no repositório público contra alterações diretas e exigir as verificações pertinentes, validando os recursos disponíveis ao configurar o GitHub. Uma conta pessoal desenvolvendo sozinha pode não conseguir formalizar autoaprovação no GitHub; a validação registrada pelo usuário continua sendo necessária.
 
-O repositório foi encontrado sem commits. O planejamento foi registrado localmente na branch `docs/planejamento-mvp`. Para PRs futuras, ainda é necessária uma base na branch principal que permita comparação entre branches. Sua preparação e a confirmação do remoto serão tratadas antes de publicar; não criar repositório remoto por iniciativa própria.
+O planejamento inicial foi registrado localmente em `docs/planejamento-mvp`. O remoto configurado é `origin`, em `https://github.com/ERodrigues/NexoTodo.git`; o usuário definiu que o repositório será inicialmente público. Ainda é necessário preparar a base `main` para comparação e confirmar sua configuração no remoto antes da primeira PR. Esta atualização documenta o fluxo; não cria branches, publica commits nem altera a visibilidade remota.
 
 ## Política de cobertura proposta
 
@@ -64,17 +69,17 @@ Ferramentas propostas: JUnit Jupiter e JaCoCo no backend; Vitest e Testing Libra
 
 | Área | Casos necessários | Evidência principal |
 | --- | --- | --- |
-| Acesso | Senha correta/incorreta; logout; sessão expirada; requisição sem sessão; limitação de tentativas. | Unitários, integração e jornada de login. |
+| Acesso | Senha correta/incorreta; política de senha forte no provisionamento/redefinição, incluindo limites, frases-senha, Unicode e bloqueio de senhas comuns; logout; sessão expirada; requisição sem sessão; limitação de tentativas. | Unitários, integração e jornada de login. |
 | Proteção | Hashes distintos para mesma senha; ausência de segredos nas respostas/logs; conteúdo protegido no banco; detecção de alteração do texto cifrado; falta/rotação de chave. | Unitários e integração com dados sintéticos. |
-| Criação | Apenas título; título em branco; campos opcionais; persistência; falha de gravação. | Unitários, integração e jornada. |
-| Edição | Preservar campos não alterados; histórico consistente; conflito de versão em duas abas. | Unitários e integração. |
+| Criação | Apenas título; título em branco; 100 caracteres aceitos e 101 rejeitados; campos opcionais; descrição longa em BLOB com acentos/quebras de linha e recuperação integral; persistência; falha de gravação. | Unitários, integração e jornada. |
+| Edição | Preservar campos não alterados; aplicar limite de título também na edição sem truncamento; descrição longa preservada; histórico consistente; conflito de versão em duas abas. | Unitários e integração. |
 | Estados | Concluir, cancelar, reabrir de ambos; solicitações repetidas; transições inválidas; visibilidade das listas. | Unitários, integração e jornadas. |
-| Projetos | Associar, transferir, desassociar; projeto arquivado; reabertura com projeto arquivado. | Unitários e integração. |
-| Categorias | Várias categorias; impedir vínculo duplicado; remover uma sem alterar outras. | Unitários e integração. |
+| Projetos | Nome com 100 caracteres aceito e 101 rejeitado na criação/renomeação; associar, transferir, desassociar; projeto arquivado; reabertura com projeto arquivado. | Unitários e integração. |
+| Categorias | Nome com 50 caracteres aceito e 51 rejeitado na criação/renomeação; várias categorias; impedir vínculo duplicado; remover uma sem alterar outras. | Unitários e integração. |
 | Filtros | Conjunção E; nenhuma categoria; combinações; filtro salvo com novas tarefas; nomes alterados. | Unitários e integração. |
 | Links | Adicionar, editar, remover; URL inválida/esquema executável; ausência de acesso automático pelo servidor. | Unitários e interface. |
 | Histórico | Estado e evento atômicos; encerradas filtráveis; múltiplas reaberturas; dados sensíveis protegidos. | Unitários e integração. |
-| Datas e push | Fuso, 9h, virada de dia; prazo alterado; ausência de prazo; encerramento; reabertura; repetição de execução; falha de provedor; permissão negada. | Unitários com relógio/provedor controlados e validação real em dispositivo. |
+| Datas e push | `America/Sao_Paulo`, 9h, virada de dia local diferente de UTC; prazo alterado; ausência de prazo; encerramento; reabertura; repetição de execução; falha de provedor; permissão negada ou suporte ausente; service worker. | Unitários com relógio/provedor controlados e validação real de Web Push em navegador compatível. |
 | Analítico | Período/fuso; várias categorias; sem projeto/categoria; canceladas; reaberturas; novo ciclo de conclusão. | Unitários e integração com base conhecida. |
 | Persistência/operação | Migrações; reinício; backup/restauração; chaves disponíveis conforme procedimento. | Integração e validação operacional. |
 | Interface | Fluxos em desktop/celular; teclado; rótulos; estados de erro, carregamento e vazio. | Testes de componentes e jornadas selecionadas. |

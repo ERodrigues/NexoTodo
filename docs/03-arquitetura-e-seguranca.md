@@ -4,12 +4,22 @@
 
 | Camada | Tecnologia |
 | --- | --- |
-| Backend | Java e Spring Boot. |
+| Backend | Java 21 LTS e Spring Boot; exigência de suporte prolongado para a linha Spring. |
 | Frontend | React, TypeScript e Vite. |
 | Persistência | PostgreSQL. |
 | Organização | Monorepo e monólito modular. |
 
-Versões compatíveis e ferramentas auxiliares serão fixadas na preparação técnica. Não escolher versões por suposição nem baixar dependências nesta etapa de planejamento.
+Java 21 está fixado por decisão do usuário. Patches, distribuição do JDK e versões compatíveis das demais ferramentas serão fixados na preparação técnica. Não baixar dependências nesta etapa de planejamento.
+
+### Política de versões e suporte
+
+Verificação das fontes oficiais em 24/10/2026:
+
+- **Java:** manter Java 21 LTS conforme solicitado. Ele é uma versão LTS, mas a mais recente é Java 25, lançada em setembro de 2025, segundo o [roadmap da Oracle](https://www.oracle.com/java/technologies/java-se-support-roadmap.html). Escolher distribuição e patch do JDK 21 com manutenção e licença adequadas antes de P0-03.
+- **Spring:** a exigência é suporte prolongado. A [política oficial](https://spring.io/support-policy/) distingue suporte OSS do suporte enterprise estendido, com extensão para a última minor de cada geração. Selecionar uma linha compatível com Java 21 e registrar as datas e a modalidade de suporte antes de P0-03. Não presumir que uma linha com suporte enterprise continua recebendo patches públicos gratuitos. Spring Framework e dependências devem seguir as versões gerenciadas pelo Spring Boot.
+- **React:** a [política oficial](https://react.dev/community/versioning-policy) oferece versões estáveis com versionamento semântico e canais de prévia, sem uma linha LTS oficial. Portanto, “React LTS” não pode ser fixado como versão existente. **Proposto:** usar uma versão estável atual, com correções de segurança, compatível com TypeScript/Vite, sem versões canary, experimentais ou RC. Registrar essa adequação à intenção de estabilidade como decisão antes de P0-04.
+
+Permanecem pendentes a linha/modalidade de suporte do Spring e a adequação do requisito LTS para React. Não contratar suporte comercial nem trocar a stack por conta dessa exigência durante o planejamento.
 
 ## Estrutura proposta
 
@@ -44,6 +54,10 @@ Projetos, tarefas e demais recursos pertencem à conta técnica. Identificadores
 
 Usar migrações versionadas e restrições de integridade. Estado atual e evento de negócio devem ser consistentes por transação. Duplicidade de associações e de agendamentos precisa de proteção também na persistência.
 
+**Confirmado:** descrição da tarefa como BLOB. **Mapeamento proposto para PostgreSQL:** texto na API/interface, codificado em UTF-8 e armazenado como bytes em coluna `bytea`, aplicando a proteção de conteúdo proposta abaixo. O PostgreSQL oferece [`bytea` para dados binários](https://www.postgresql.org/docs/current/datatype-binary.html), sem exigir um tipo SQL chamado `BLOB`. Validar o mapeamento pelo ORM e a recuperação integral de textos longos, acentos e quebras de linha. Não adicionar upload de arquivos por causa desse campo.
+
+Título da tarefa e nome de projeto aceitam até 100 caracteres; nome de categoria, até 50. Aplicar os limites ao valor legível antes da criptografia; o tamanho da coluna cifrada não corresponde ao limite de caracteres do formulário. A descrição ainda requer limite técnico de payload/volume antes da implementação.
+
 Conflitos de alteração em duas abas devem ser detectados por versão da tarefa, em vez de sobrescrever mudanças silenciosamente. O mecanismo concreto é proposto para detalhamento antes da edição de tarefas.
 
 Usar base separada e descartável nos testes. Não copiar dados reais para testes, exemplos ou demonstrações.
@@ -60,12 +74,24 @@ Não coletar nome, e-mail, telefone, CPF, endereço ou data de nascimento. Recup
 
 ## Proteção de senhas
 
+**Confirmado:** exigir senhas fortes no provisionamento e na redefinição.
+
+**Política concreta proposta**, baseada na [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html) para acesso sem MFA:
+
+- Entre 15 e 128 caracteres, permitindo frases-senha, espaços e Unicode.
+- Rejeitar senhas comuns, previsíveis ou conhecidas como comprometidas, por lista verificada localmente; não enviar senhas a serviços externos.
+- Permitir gerenciadores de senha, colar e preenchimento automático; não truncar nem remover espaços da senha silenciosamente.
+- Não exigir trocas periódicas sem indício de comprometimento nem regras arbitrárias de composição como condição isolada de força.
+- Aplicar a validação no backend e informar os critérios na interface. Definir a lista de bloqueio antes de P1-01.
+
+Armazenamento e controles complementares:
+
 - Armazenar somente hash de senha com Argon2id e salt individual gerado por biblioteca consolidada.
 - Não usar criptografia reversível para senha; não usar hash rápido simples como SHA-256 para esse fim.
 - Definir parâmetros e custo com base nas recomendações atuais e na capacidade do ambiente antes da implementação.
 - Não retornar senha ou hash em respostas da API; não registrá-los em logs.
 - Permitir futura atualização dos parâmetros sem recuperar a senha original.
-- Definir política de senha, limitação de tentativas e respostas de login que não exponham informações desnecessárias.
+- Definir limitação de tentativas e respostas de login que não exponham informações desnecessárias.
 
 ## Sessões e autorização propostas
 
@@ -113,6 +139,10 @@ Não é criptografia de ponta a ponta: a aplicação precisa ler conteúdo autor
 
 ## Operação e ambiente local
 
+- Repositório remoto inicialmente público, com `main` como branch principal e Trunk Based Development; fluxo detalhado em [Qualidade](04-qualidade-e-validacao.md). O remoto configurado localmente é `https://github.com/ERodrigues/NexoTodo.git`; a visibilidade pública é a decisão de planejamento, não uma alteração remota executada nesta etapa.
+- Versionar somente código, documentação e exemplos sintéticos; bancos, backups, credenciais e segredos locais não entram no repositório público.
+- Configurar o fuso de negócio como `America/Sao_Paulo`; persistir instantes em UTC e aplicar o fuso em prazos, lembretes e recortes do analítico.
+- Web Push no navegador é o único canal de notificações da primeira versão; a preparação contempla service worker, inscrições e credenciais de envio protegidas.
 - Documentar pré-requisitos, comandos de execução/parada, endereço, versão e modo de carregar dados fictícios.
 - Manter configuração e banco locais separados de qualquer ambiente de produção futuro.
 - Validar migrações, backup e restauração antes de usar dados reais.

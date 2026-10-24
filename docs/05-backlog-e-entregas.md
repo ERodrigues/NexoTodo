@@ -4,7 +4,7 @@ Status inicial de todos os itens executáveis: **planejado**. Este documento nã
 
 ## Princípios
 
-- Cada item de implementação gera branch própria e PR ao final.
+- Cada item de implementação gera branch curta a partir de `main` e PR de volta para `main`, seguindo Trunk Based Development.
 - Etapas são agrupamentos de resultado, não branches extensas.
 - Testes, segurança e documentação acompanham o comportamento entregue.
 - Validar localmente cada entrega executável após os testes.
@@ -28,21 +28,23 @@ Status inicial de todos os itens executáveis: **planejado**. Este documento nã
 | --- | --- | --- | --- |
 | P0-01 `docs/especificacao-mvp` | Produto, regras, stack, segurança e decisões. | Briefing e confirmações. | Requisitos rastreáveis; decisões confirmadas separadas das propostas; nenhuma funcionalidade anunciada como pronta. |
 | P0-02 `docs/backlog-validacao` | Backlog, TDD, cobertura, PRs e roteiro de validação local. | P0-01. | Primeiras entregas têm escopo, dependência, testes e aceite; usuário entende como acompanhar. |
-| P0-03 `chore/base-backend` | Base Spring Boot e testes/automação pertinentes. | Aprovação do planejamento, ambiente autorizado e base Git preparada. | Executa localmente; falha real de teste reprova a verificação; instruções reproduzíveis. |
-| P0-04 `chore/base-frontend` | Base React/TypeScript/Vite e testes/automação pertinentes. | Ambiente autorizado e P0-02. | Interface mínima local, responsiva, com verificação pertinente e relatório de cobertura configurado. |
+| P0-03 `chore/base-backend` | Base Java 21 LTS/Spring Boot e testes/automação pertinentes. | Aprovação do planejamento, ambiente autorizado, base `main` preparada e linha/modalidade de suporte do Spring definida. | JDK 21 com distribuição/patch fixados; Spring compatível com datas e modalidade de suporte documentadas; executa localmente; falha real de teste reprova a verificação; instruções reproduzíveis. |
+| P0-04 `chore/base-frontend` | Base React/TypeScript/Vite e testes/automação pertinentes. | Ambiente autorizado, P0-02 e adequação do requisito LTS do React decidida. | Versões estáveis compatíveis fixadas, sem chamar React de LTS; interface mínima local, responsiva, com verificação pertinente e relatório de cobertura configurado. |
 | P0-05 `chore/persistencia-local` | PostgreSQL isolado, migrações e teste de integração estrutural. | P0-03. | Migrações reproduzíveis e banco de teste separado; nenhuma credencial real versionada. |
-| P0-06 `docs/viabilidade-push` | Matriz de dispositivos e plano de acesso seguro para push. | Dispositivos definidos pelo usuário. | Restrições e passos de validação documentados. Prova executável, se necessária, vira implementação separada e autorizada. |
+| P0-06 `docs/viabilidade-push` | Matriz de navegadores/sistemas operacionais e plano de acesso seguro para Web Push, único canal da primeira versão. | Canal navegador confirmado; selecionar navegador/sistema de validação. | Restrições de suporte, service worker, permissão e HTTPS/localhost documentadas, incluindo iOS em aba; roteiro às 9h em `America/Sao_Paulo`. Prova executável, se necessária, vira implementação separada e autorizada. |
 
 A documentação pode ser preparada agora como um conjunto coerente e posteriormente organizada em commits pequenos. Branches, commits e publicação de PRs dependem da disponibilidade de escrita no Git local e de uma base/remoto apropriados. Não criar remoto nesta etapa.
+
+Na preparação Git, usar `main` como base e destino das PRs e o repositório inicialmente público já definido. O remoto local configurado é `origin` (`https://github.com/ERodrigues/NexoTodo.git`); preparar a base e verificar as configurações antes da primeira publicação.
 
 ## Etapa 1: detalhamento inicial
 
 ### P1-01 — Proteção de credenciais
 
 - Branch sugerida: `feat/protecao-credenciais`.
-- Escopo: hash Argon2id, verificação e parâmetros configurados; sem cadastro público.
+- Escopo: hash Argon2id, verificação, parâmetros configurados e política de senha forte no provisionamento/redefinição; sem cadastro público.
 - Dependência: P0-03 e definição dos parâmetros/política de senha.
-- Aceite: senha válida verifica; inválida falha; senhas iguais geram hashes distintos; senha e hash não são expostos por logs ou contratos da API.
+- Aceite: senha válida verifica; inválida falha; senhas iguais geram hashes distintos; política de força definida em [Arquitetura](03-arquitetura-e-seguranca.md) aplicada sem truncamento; senha e hash não são expostos por logs ou contratos da API.
 - Testes: unitários dos comportamentos e teste de integração quando houver persistência.
 - Validação local: entrega técnica, com dados sintéticos e roteiro reproduzível.
 
@@ -69,9 +71,9 @@ A documentação pode ser preparada agora como um conjunto coerente e posteriorm
 ### P1-04 — Criar e listar tarefas no Inbox
 
 - Branch sugerida: `feat/criacao-inbox`.
-- Escopo: criar com título e campos básicos opcionais; listar abertas sem projeto; persistir e registrar criação.
-- Dependência: P1-03 e proteção de conteúdo disponível para os campos da tarefa.
-- Aceite: apenas título basta; título em branco falha; tarefa aparece uma vez; recarregar/reiniciar preserva os dados; falha de gravação não cria histórico órfão.
+- Escopo: criar com título de até 100 caracteres e campos básicos opcionais, incluindo descrição longa em BLOB; listar abertas sem projeto; persistir e registrar criação.
+- Dependência: P1-03, proteção de conteúdo disponível para os campos da tarefa e limite técnico de payload/volume da descrição definido.
+- Aceite: apenas título basta; título em branco ou acima de 100 caracteres falha sem truncamento; descrição longa é recuperada integralmente; tarefa aparece uma vez; recarregar/reiniciar preserva os dados; falha de gravação não cria histórico órfão.
 - Testes: unitários, integração com PostgreSQL e jornada de captura.
 - Validação local: criar tarefas fictícias, testar obrigatoriedade e recuperar após reinício.
 
@@ -80,7 +82,7 @@ A documentação pode ser preparada agora como um conjunto coerente e posteriorm
 - Branch sugerida: `feat/edicao-tarefa`.
 - Escopo: alterar título, descrição e prazo de tarefa aberta; preservar campos não enviados; registrar alterações.
 - Dependência: P1-04.
-- Aceite: alteração persiste; erro de validação não perde valores; histórico corresponde à alteração; conflito entre abas não sobrescreve silenciosamente.
+- Aceite: alteração persiste respeitando título de até 100 caracteres e descrição BLOB; erro de validação não perde valores nem trunca; histórico corresponde à alteração; conflito entre abas não sobrescreve silenciosamente.
 - Testes: unitários, integração e fluxo principal de edição.
 - Validação local: editar, recarregar, consultar a evidência de alteração e provocar conflito com duas abas.
 
@@ -124,11 +126,11 @@ A documentação pode ser preparada agora como um conjunto coerente e posteriorm
 
 | Etapa | Implementações candidatas, cada uma com branch/PR | Aceite central |
 | --- | --- | --- |
-| 2 | Cadastro/renomeação de projetos; vínculo/transferência de tarefas; arquivamento/reativação de projetos. | Vincular não copia tarefa nem perde histórico; arquivamento respeita tarefas abertas. |
-| 2 | Cadastro de categorias; múltiplos vínculos e remoção; arquivamento/reativação. | Remover um vínculo não remove os demais; não há associações duplicadas. |
+| 2 | Cadastro/renomeação de projetos; vínculo/transferência de tarefas; arquivamento/reativação de projetos. | Nome com até 100 caracteres na criação/renomeação; vincular não copia tarefa nem perde histórico; arquivamento respeita tarefas abertas. |
+| 2 | Cadastro/renomeação de categorias; múltiplos vínculos e remoção; arquivamento/reativação. | Nome com até 50 caracteres na criação/renomeação; remover um vínculo não remove os demais; não há associações duplicadas. |
 | 3 | Filtro por categorias; combinação com projeto/estado/prazo; salvar/editar/excluir filtros. | Conjunção E funciona; filtros guardam critérios e atualizam resultados. |
 | 3 | Links nas tarefas. | URLs válidas e seguras, opcionais, editáveis e consultáveis. |
-| 4 | Hoje/atrasadas; permissão e inscrição push; agendamento; envio e tratamento de falhas. | 9h no fuso, estado/prazo atual conferidos, reenvios controlados e teste real em dispositivo. |
+| 4 | Hoje/atrasadas; permissão, service worker e inscrição Web Push; agendamento; envio e tratamento de falhas. | 9h em `America/Sao_Paulo`, estado/prazo atual conferidos, reenvios controlados e teste real em navegador compatível. |
 | 5 | Contagem geral/período; agrupamentos/cruzamentos; backup/restauração e aceite final. | Base conhecida produz números explicáveis; reaberturas não inflam contagens. |
 
 Cada linha será refinada em itens menores antes de implementar; não corresponde necessariamente a uma única PR.
