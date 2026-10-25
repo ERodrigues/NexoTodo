@@ -93,7 +93,7 @@ Existem duas consultas: lista de tarefas encerradas e linha do tempo de uma tare
 - A linha do tempo registra criação, edição, mudança de projeto, alteração de categorias/links, conclusão, cancelamento e reabertura.
 - Eventos indicam tipo, instante e referência técnica da tarefa/conta, sem dados pessoais desnecessários.
 - **Proposto:** registrar valores anteriores e novos quando necessários para compreender uma alteração. Conteúdo sensível nos eventos recebe a mesma proteção do conteúdo atual.
-- Alteração de estado e evento correspondente são gravados na mesma transação.
+- **Confirmado:** alteração de estado, evento de histórico correspondente e contexto de conclusão aplicável são gravados na mesma transação, coordenada pela camada de aplicação.
 - Desfazer uma conclusão significa adicionar uma reabertura, preservando o evento anterior.
 - O histórico de negócio não deve ser confundido com logs técnicos.
 
@@ -124,7 +124,7 @@ Regras complementares propostas:
 11. Uma notificação já enviada pode aparecer depois que a tarefa foi encerrada; ao abrir, mostrar o estado atual.
 12. **Proposto:** mensagem genérica, sem título ou descrição da tarefa na tela bloqueada. Ao tocar, exigir autenticação para consultar os detalhes.
 
-HTTPS, permissão, service worker e suporte do navegador são necessários. Navegador e sistema operacional de validação ainda precisam ser especificados. No iOS/iPadOS, o Web Push exige a aplicação adicionada à tela inicial; o uso apenas em aba nesses sistemas não atende ao requisito. Registrar essa restrição na matriz de compatibilidade e validar em um navegador compatível antes de considerar o requisito atendido.
+HTTPS, permissão, service worker e suporte do navegador são necessários. **Confirmado:** Google Chrome é o navegador padrão para uso e validação. A plataforma/versão do Chrome e compatibilidade dos demais navegadores ainda precisam ser especificadas. No iOS/iPadOS, o Web Push exige a aplicação adicionada à tela inicial; o uso apenas em aba nesses sistemas não atende ao requisito. Registrar essa restrição na matriz de compatibilidade e validar no Chrome da plataforma escolhida antes de considerar o requisito atendido.
 
 Permissão negada ou navegador incompatível não impede usar as tarefas. A interface deve informar a condição e continuar sinalizando hoje/atrasadas; essa sinalização não substitui o aceite do push em ambiente compatível.
 

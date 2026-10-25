@@ -21,16 +21,27 @@ Respeite a distinção entre **confirmado**, **proposto** e **pendente**. Não t
 
 O projeto está em planejamento, com documentação e arquivos de orientação/configuração do repositório. Enquanto esse escopo permanecer vigente, não implemente funcionalidades, baixe ou instale dependências nem inicie serviços. Uma instrução posterior do usuário pode autorizar a implementação.
 
-Ainda não existem bases executáveis, comandos de build/teste ou ferramentas de build definidos. Não apresente comandos futuros como existentes nem anuncie funcionalidades planejadas como implementadas.
+Ainda não existem bases executáveis, comandos de build/teste ou Gradle Wrapper. Spring Boot 4.1.2 e Gradle com DSL Groovy estão definidos; a versão do Gradle será escolhida dentro da faixa compatível no P0-03. Não apresente comandos futuros como existentes nem anuncie funcionalidades planejadas como implementadas.
 
 ## Stack e organização
 
-- Backend: **Java 21 LTS e Spring Boot**. Preserve a escolha de Java 21; distribuição/patch do JDK e linha/modalidade de suporte do Spring permanecem pendentes.
-- Frontend: **React, TypeScript e Vite**. React não tem linha LTS oficial; usar uma versão estável atual é proposta a fechar antes da base frontend.
+- Backend: **GraalVM Community Edition `21.0.2-graalce` (Java 21 LTS), Spring Boot 4.1.2 e Gradle com DSL Groovy** (`build.gradle`, `settings.gradle`). Preserve as versões escolhidas. Defina a versão do Gradle dentro da faixa compatível com Java 21/Spring Boot 4.1.2 e registre o Wrapper; valide manutenção sem trocar silenciosamente a versão do Java. A modalidade de suporte Spring permanece pendente. Imagem nativa não está definida; Spring Boot 4.1.2 lista GraalVM 25 para Native Image, então reavalie compatibilidade antes de considerar essa opção.
+- Frontend: **última versão estável do React disponível quando a base for criada**, com TypeScript e Vite. Fixe versões e lockfile; React não oferece linha LTS oficial.
 - Banco: **PostgreSQL**.
-- Organização: **monorepo e monólito modular**, com backend por capacidades de negócio e regras testáveis sem subir toda a aplicação.
+- Organização: **monorepo e monólito modular por capacidades de negócio, com Clean Architecture**, conforme decisão confirmada em Arquitetura.
 - Estrutura planejada: `backend/`, `frontend/`, `infra/`, `.github/` e `docs/`. Crie essas estruturas apenas quando o trabalho correspondente estiver autorizado.
-- Verifique versões compatíveis e suporte em fontes oficiais antes de fixar dependências. Não introduza uma ferramenta de build, gerenciador de pacotes ou assinatura comercial como se já tivesse sido escolhido.
+- Verifique versões compatíveis e suporte em fontes oficiais antes de fixar dependências. Gradle com DSL Groovy está definido para o backend; não introduza outra DSL, ferramenta de build Java ou assinatura comercial como se tivesse sido escolhida.
+
+## Fronteiras de arquitetura
+
+- **Domínio:** concentre regras, invariantes e transições de estado, sem depender de Spring, HTTP ou mecanismos de persistência.
+- **Aplicação:** implemente casos de uso, autorização por conta e coordenação das operações e de seus limites transacionais.
+- **Adaptadores e infraestrutura:** implemente API HTTP, persistência PostgreSQL, Web Push, agendamento e configuração do Spring. Dependências apontam para domínio e aplicação; contratos necessários ao núcleo são definidos por ele e implementados externamente.
+- Defina os módulos conforme responsabilidades, dependências e invariantes. Evite fragmentação excessiva e crie abstrações somente quando protegerem fronteiras relevantes; não exija interface para cada classe ou caso de uso.
+- Persista alterações de estado, eventos de histórico e contexto de conclusão aplicável na mesma transação. Cubra persistência, transações, concorrência e demais comportamentos de infraestrutura com testes de integração, complementando os unitários do núcleo.
+- Permita consultas específicas e eficientes para listagens e analítico sem reconstruir objetos completos do domínio.
+- No frontend, organize por funcionalidades e separe apresentação, estado e acesso à API sem exigir as mesmas camadas do backend.
+- Controle o custo de contratos e conversões com implementação enxuta; não antecipe camadas, abstrações genéricas ou infraestrutura sem necessidade concreta. Esta decisão não autoriza implementação durante o planejamento.
 
 ## Regras essenciais do produto
 
@@ -41,7 +52,7 @@ Ainda não existem bases executáveis, comandos de build/teste ou ferramentas de
 - Filtros combinam categorias com **E**. Filtros salvos guardam critérios e recalculam os resultados atuais.
 - Permita concluir, cancelar e reabrir tarefas concluídas ou canceladas, preservando o histórico. Cancelar não é excluir definitivamente.
 - Use **`America/Sao_Paulo`** para datas de negócio, lembretes e períodos do analítico; armazene instantes em UTC. Não configure `America/SP` nem um deslocamento UTC fixo.
-- A primeira versão envia **Web Push pelo navegador às 9h no dia do prazo**. Valide permissão, service worker, suporte do navegador/sistema e acesso seguro; simular envio não comprova entrega real.
+- Use o **Google Chrome como navegador padrão** para executar e validar a aplicação. A primeira versão envia Web Push no navegador às 9h no dia do prazo; priorize a validação no Chrome e confira permissão, service worker, plataforma e acesso seguro. Simular envio não comprova entrega real.
 - O MVP inclui links, histórico e analítico. Upload de arquivos, app nativo, colaboração, cadastro público, coleta de dados pessoais e sincronização offline estão fora do MVP.
 - Consulte as regras completas antes de alterar estados, histórico, agendamento ou contagens; há detalhes ainda propostos nesses fluxos.
 
@@ -60,7 +71,7 @@ Ainda não existem bases executáveis, comandos de build/teste ou ferramentas de
 ## Git e entregas pequenas
 
 - A branch principal é **`main`**, seguindo **Trunk Based Development**. Use branches curtas por implementação e PR para `main`, sem `develop` permanente ou branch por etapa inteira.
-- Antes de criar uma branch, confira o estado do Git e a existência da base. Preparar `main` para a primeira PR continua pendente; não renomeie ou reescreva a branch de planejamento para simular essa preparação.
+- A branch principal local é `main` e deve acompanhar a branch principal remota `origin/main`. Preserve o upstream `origin/main`; não o remova, apague nem renomeie. Antes de criar uma branch de implementação, confira o estado do Git e atualize `main` a partir de `origin/main`. Preserve `docs/planejamento-mvp` e não reescreva seu histórico. Confirme o estado da branch padrão remota antes da primeira PR.
 - Use os prefixos propostos `docs/`, `chore/`, `feat/` e `fix/` conforme o escopo; faça commits pequenos, coerentes e revisáveis.
 - Preserve alterações do usuário. Evite mudanças sem relação com o item e operações destrutivas sobre o histórico.
 - Siga o fluxo de validação e integração descrito em Qualidade; não faça merge automático. A integração depende de validação e aprovação do usuário.
@@ -74,7 +85,7 @@ Quando a implementação estiver autorizada:
 2. Desenvolva por **TDD**: observe a falha esperada, implemente, observe o teste passar e refatore.
 3. Inclua testes unitários dos comportamentos e testes de integração/jornadas pertinentes. A cobertura mínima confirmada é **85%**; a medição por camada e ramificações segue a proposta em Qualidade, a fechar antes da configuração.
 4. Descubra os comandos nos arquivos de build e scripts realmente existentes; use os wrappers e lockfiles adotados pelo projeto. Não invente comandos ou resultados.
-5. Verifique limites dos campos, persistência, transações de estado/histórico, isolamento de dados e datas com relógio controlado quando afetados.
+5. Verifique limites dos campos, direção das dependências, persistência, transações conjuntas de estado/histórico/contexto de conclusão, concorrência, isolamento de dados e datas com relógio controlado quando afetados.
 6. Execute as verificações pertinentes, registre os resultados e atualize a documentação junto com a mudança.
 7. Prepare e inicie a versão local para validação do usuário; confirme que responde e entregue endereço, versão/commit, comandos de iniciar/parar, roteiro com dados fictícios e limitações conhecidas.
 8. Prepare a PR com escopo, critérios de aceite, evidências de testes/cobertura e estado da validação local. Distinga implementado, testado, disponível localmente, validado e integrado.

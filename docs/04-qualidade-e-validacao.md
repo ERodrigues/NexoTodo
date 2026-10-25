@@ -7,6 +7,7 @@
 - Cobertura mínima de 85%.
 - Branch principal `main` e Trunk Based Development, com branches curtas por implementação, commits pequenos e PR ao final para `main`.
 - Repositório remoto inicialmente público.
+- Clean Architecture no monólito modular: testar regras e casos de uso isoladamente e complementar com integração para persistência, transações, concorrência e demais comportamentos de infraestrutura.
 - Após implementar e obter o resultado dos testes, disponibilizar a versão local para o usuário testar e validar.
 
 ## Ciclo de uma implementação
@@ -47,7 +48,7 @@ Proposta de integração: preservar os commits para consulta da evolução, em v
 
 Planejar proteção de `main` no repositório público contra alterações diretas e exigir as verificações pertinentes, validando os recursos disponíveis ao configurar o GitHub. Uma conta pessoal desenvolvendo sozinha pode não conseguir formalizar autoaprovação no GitHub; a validação registrada pelo usuário continua sendo necessária.
 
-O planejamento inicial foi registrado localmente em `docs/planejamento-mvp`. O remoto configurado é `origin`, em `https://github.com/ERodrigues/NexoTodo.git`; o usuário definiu que o repositório será inicialmente público. Ainda é necessário preparar a base `main` para comparação e confirmar sua configuração no remoto antes da primeira PR. Esta atualização documenta o fluxo; não cria branches, publica commits nem altera a visibilidade remota.
+O planejamento inicial permanece na branch local `docs/planejamento-mvp`. A branch local `main` foi criada no commit atual, preservando a branch de planejamento, e está configurada para acompanhar `origin/main`, que deve ser a branch padrão/principal do remoto. O checkout atual ainda não tem uma referência remota `origin/main` disponível (`git status` reporta upstream ausente); isso não apaga nem desautoriza a branch remota. Antes da primeira PR, sincronizar e confirmar que `origin/main` está configurada como branch padrão do remoto. Esta atualização não publica commits nem altera a configuração remota.
 
 ## Política de cobertura proposta
 
@@ -65,6 +66,18 @@ PRs apenas de documentação não exigem testes de aplicação ou inicializaçã
 
 Ferramentas propostas: JUnit Jupiter e JaCoCo no backend; Vitest e Testing Library no frontend; Playwright para jornadas críticas. Testes de integração devem usar PostgreSQL isolado; containers são opção a avaliar, sem instalar ferramentas durante o planejamento.
 
+## Validação das fronteiras de arquitetura
+
+Conforme a decisão confirmada de Clean Architecture:
+
+- Testar regras, invariantes e transições do domínio sem Spring, HTTP ou mecanismos de persistência.
+- Testar casos de uso e autorização por conta na aplicação com contratos do núcleo e dependências externas controladas; verificar a coordenação das operações e seus limites transacionais.
+- Complementar com integração real para mapeamento PostgreSQL, consultas específicas, gravação atômica e rollback de estado/histórico/contexto de conclusão, concorrência e demais comportamentos de infraestrutura afetados. Mocks isoladamente não comprovam essas garantias.
+- Revisar a direção das dependências: domínio e aplicação não dependem das implementações dos adaptadores; contratos necessários ao núcleo são definidos por ele. Não exigir uma interface para cada classe ou caso de uso.
+- No frontend, validar funcionalidades e a separação entre apresentação, estado e acesso à API conforme os comportamentos, sem impor as camadas do backend.
+
+A estrutura concreta e eventuais ferramentas de verificação serão definidas quando a implementação correspondente estiver autorizada, sem antecipar infraestrutura durante o planejamento.
+
 ## Matriz mínima de testes
 
 | Área | Casos necessários | Evidência principal |
@@ -78,7 +91,7 @@ Ferramentas propostas: JUnit Jupiter e JaCoCo no backend; Vitest e Testing Libra
 | Categorias | Nome com 50 caracteres aceito e 51 rejeitado na criação/renomeação; várias categorias; impedir vínculo duplicado; remover uma sem alterar outras. | Unitários e integração. |
 | Filtros | Conjunção E; nenhuma categoria; combinações; filtro salvo com novas tarefas; nomes alterados. | Unitários e integração. |
 | Links | Adicionar, editar, remover; URL inválida/esquema executável; ausência de acesso automático pelo servidor. | Unitários e interface. |
-| Histórico | Estado e evento atômicos; encerradas filtráveis; múltiplas reaberturas; dados sensíveis protegidos. | Unitários e integração. |
+| Histórico | Estado, evento e contexto de conclusão aplicável atômicos, inclusive rollback em falha; encerradas filtráveis; múltiplas reaberturas; dados sensíveis protegidos. | Unitários e integração. |
 | Datas e push | `America/Sao_Paulo`, 9h, virada de dia local diferente de UTC; prazo alterado; ausência de prazo; encerramento; reabertura; repetição de execução; falha de provedor; permissão negada ou suporte ausente; service worker. | Unitários com relógio/provedor controlados e validação real de Web Push em navegador compatível. |
 | Analítico | Período/fuso; várias categorias; sem projeto/categoria; canceladas; reaberturas; novo ciclo de conclusão. | Unitários e integração com base conhecida. |
 | Persistência/operação | Migrações; reinício; backup/restauração; chaves disponíveis conforme procedimento. | Integração e validação operacional. |

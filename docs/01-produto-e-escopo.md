@@ -35,13 +35,14 @@ O único dado de conteúdo obrigatório ao criar uma tarefa é o título. Classi
 
 ## Restrições confirmadas
 
-- Java 21 LTS com Spring Boot no backend; React com TypeScript e Vite no frontend; PostgreSQL no banco. A exigência de suporte prolongado para Spring e React e suas particularidades estão em [Arquitetura](03-arquitetura-e-seguranca.md).
-- Um monorepo; arquitetura inicial de monólito modular.
+- GraalVM Community Edition `21.0.2-graalce` (Java 21 LTS), Spring Boot 4.1.2 e Gradle com DSL Groovy no backend; última versão estável do React com TypeScript e Vite no frontend; PostgreSQL no banco. A política de suporte do Spring e as versões compatíveis estão em [Arquitetura](03-arquitetura-e-seguranca.md).
+- Um monorepo; monólito modular por capacidades de negócio com Clean Architecture, separando domínio, aplicação e adaptadores/infraestrutura, conforme [Arquitetura](03-arquitetura-e-seguranca.md).
 - Desenvolvimento por TDD, com testes unitários para as funcionalidades criadas.
 - Cobertura de testes de pelo menos 85%; a política de medição está proposta em [Qualidade](04-qualidade-e-validacao.md).
 - Branch principal `main`, com Trunk Based Development: branches curtas por implementação, commits pequenos e PR para `main`.
 - Repositório remoto inicialmente público; essa decisão não publica a aplicação nem os dados de uso.
 - Push exclusivamente pelo navegador via Web Push na primeira versão.
+- Navegador padrão para usar e validar a aplicação: Google Chrome.
 - Fuso do MVP: `America/Sao_Paulo` (São Paulo).
 - Senhas fortes; título da tarefa e nome de projeto com até 100 caracteres; nome de categoria com até 50; descrição opcional como conteúdo longo em BLOB.
 - Após implementar e obter os resultados dos testes, disponibilizar uma versão local para o usuário testar e validar.

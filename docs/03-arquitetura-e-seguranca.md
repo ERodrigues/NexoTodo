@@ -4,22 +4,59 @@
 
 | Camada | Tecnologia |
 | --- | --- |
-| Backend | Java 21 LTS e Spring Boot; exigência de suporte prolongado para a linha Spring. |
-| Frontend | React, TypeScript e Vite. |
+| Backend | GraalVM Community Edition (`21.0.2-graalce`) com Java 21 LTS, Spring Boot 4.1.2 e Gradle com DSL Groovy. |
+| Frontend | Última versão estável do React, com TypeScript e Vite. |
 | Persistência | PostgreSQL. |
-| Organização | Monorepo e monólito modular. |
+| Organização | Monorepo e monólito modular por capacidades de negócio, com Clean Architecture. |
 
-Java 21 está fixado por decisão do usuário. Patches, distribuição do JDK e versões compatíveis das demais ferramentas serão fixados na preparação técnica. Não baixar dependências nesta etapa de planejamento.
+Distribuição e versão do Java fixadas por decisão do usuário em GraalVM Community Edition `21.0.2-graalce`. Spring Boot 4.1.2 e Gradle com DSL Groovy também estão definidos. Escolher a versão do Gradle e registrar o Gradle Wrapper na preparação técnica. A modalidade de suporte Spring continua pendente. Não baixar dependências nesta etapa de planejamento.
 
 ### Política de versões e suporte
 
 Verificação das fontes oficiais em 24/10/2026:
 
-- **Java:** manter Java 21 LTS conforme solicitado. Ele é uma versão LTS, mas a mais recente é Java 25, lançada em setembro de 2025, segundo o [roadmap da Oracle](https://www.oracle.com/java/technologies/java-se-support-roadmap.html). Escolher distribuição e patch do JDK 21 com manutenção e licença adequadas antes de P0-03.
-- **Spring:** a exigência é suporte prolongado. A [política oficial](https://spring.io/support-policy/) distingue suporte OSS do suporte enterprise estendido, com extensão para a última minor de cada geração. Selecionar uma linha compatível com Java 21 e registrar as datas e a modalidade de suporte antes de P0-03. Não presumir que uma linha com suporte enterprise continua recebendo patches públicos gratuitos. Spring Framework e dependências devem seguir as versões gerenciadas pelo Spring Boot.
-- **React:** a [política oficial](https://react.dev/community/versioning-policy) oferece versões estáveis com versionamento semântico e canais de prévia, sem uma linha LTS oficial. Portanto, “React LTS” não pode ser fixado como versão existente. **Proposto:** usar uma versão estável atual, com correções de segurança, compatível com TypeScript/Vite, sem versões canary, experimentais ou RC. Registrar essa adequação à intenção de estabilidade como decisão antes de P0-04.
+- **Java:** usar GraalVM Community Edition `21.0.2-graalce`, fixado pelo usuário. As [notas e o calendário oficiais do GraalVM](https://www.graalvm.org/release-notes/JDK_21/) registram essa distribuição JDK 21 e versões posteriores. Confirmar compatibilidade com Spring/Gradle e situação de manutenção/atualizações de segurança antes da base e novamente antes de produção; preservar a versão escolhida, registrando qualquer necessidade de revisão para decisão do usuário.
+- **Gradle:** usar Gradle com DSL Groovy, por meio de scripts `build.gradle` e `settings.gradle` (sem DSL Kotlin nos scripts deste build). A [matriz oficial de compatibilidade](https://docs.gradle.org/current/userguide/compatibility.html) indica suporte para executar Gradle em Java 21 a partir da versão 8.5.
+- **Spring:** Spring Boot **4.1.2** está fixado pelo usuário. Os [requisitos oficiais do Spring Boot 4.1.2](https://docs.spring.io/spring-boot/system-requirements.html) incluem Java 21 e Gradle 8.14 ou posterior na linha 8.x, ou Gradle 9.x. Fixar uma dessas versões compatíveis, registrar o Gradle Wrapper e conferir as datas/modalidade de suporte antes do P0-03. A [política oficial](https://spring.io/support-policy/) distingue suporte OSS do enterprise estendido; não presumir que suporte enterprise implica patches públicos gratuitos. Spring Framework e dependências seguem as versões gerenciadas pelo Spring Boot.
+- **GraalVM e imagens nativas:** a aplicação está definida para a distribuição Java escolhida. Spring Boot 4.1.2 lista GraalVM 25 para gerar Native Images; geração de imagem nativa não foi definida como requisito. Não a introduzir na base sem reavaliar essa compatibilidade e a versão de Java escolhida.
+- **React:** usar a última versão estável disponível quando a base frontend for criada, conforme decisão do usuário. A [política oficial](https://react.dev/community/versioning-policy) distingue o canal estável dos canais instáveis e segue versionamento semântico; React não publica uma linha LTS. Fixar as versões exatas compatíveis de `react`, `react-dom`, TypeScript e Vite e versionar o lockfile no P0-04; não usar canary, experimental, beta ou RC como versão estável.
 
-Permanecem pendentes a linha/modalidade de suporte do Spring e a adequação do requisito LTS para React. Não contratar suporte comercial nem trocar a stack por conta dessa exigência durante o planejamento.
+Permanece pendente a modalidade de suporte Spring. A versão exata do Gradle será definida pela preparação técnica dentro das versões compatíveis com Java 21 e Spring Boot 4.1.2. Não contratar suporte comercial nem trocar a stack por conta dessa exigência durante o planejamento.
+
+## Adoção de Clean Architecture no monólito modular
+
+**Status: confirmado.**
+
+O NexoTodo manterá a arquitetura de monólito modular, organizado por capacidades de negócio, adotando os princípios da Clean Architecture para separar regras de negócio, casos de uso e detalhes de infraestrutura.
+
+A organização interna terá três responsabilidades principais:
+
+| Responsabilidade | Escopo |
+| --- | --- |
+| Domínio | Regras, invariantes e transições de estado, sem dependência de Spring, HTTP ou mecanismos de persistência. |
+| Aplicação | Casos de uso, verificação de autorização por conta e coordenação das operações e de seus limites transacionais. |
+| Adaptadores e infraestrutura | API HTTP, persistência PostgreSQL, integração Web Push, agendamento e configuração do Spring. |
+
+As dependências de código apontarão para o domínio e a aplicação. Contratos necessários ao núcleo serão definidos por ele e implementados pelos adaptadores externos. A aplicação utiliza o domínio; o núcleo não depende das implementações dos adaptadores.
+
+### Justificativa
+
+O projeto possui regras relevantes de conclusão, cancelamento, reabertura, histórico, datas e lembretes. Essa separação permite testá-las isoladamente, favorece o TDD e reduz o impacto de mudanças técnicas.
+
+### Diretrizes de aplicação
+
+- Criar abstrações quando protegerem fronteiras relevantes; não exigir uma interface para cada classe ou caso de uso.
+- Definir os limites dos módulos conforme responsabilidades, dependências e invariantes, evitando fragmentação excessiva.
+- Garantir que alterações de estado, eventos de histórico e contexto de conclusão aplicável sejam persistidos na mesma transação. A aplicação coordena esse limite; os adaptadores implementam os mecanismos de persistência e transação.
+- Permitir consultas específicas e eficientes para listagens e analítico, sem exigir a reconstrução de objetos completos do domínio.
+- Complementar testes unitários com testes de integração para persistência, transações, concorrência e demais comportamentos de infraestrutura.
+- No frontend, organizar por funcionalidades e separar apresentação, estado e acesso à API, sem exigir reprodução das camadas do backend.
+
+### Consequências
+
+Haverá código adicional para contratos e conversões entre fronteiras. Esse custo será controlado por uma implementação enxuta, evitando camadas, abstrações genéricas e infraestrutura antecipada sem necessidade concreta.
+
+Esta decisão orienta as futuras implementações e não altera a restrição vigente de apenas planejamento. A estrutura concreta de pacotes e os limites de cada módulo serão detalhados conforme os itens autorizados, respeitando essas responsabilidades.
 
 ## Estrutura proposta
 
@@ -34,7 +71,9 @@ NexoTodo/
 
 As pastas de implementação são planejamento; não precisam existir agora.
 
-Organizar o backend por capacidades: acesso, tarefas, projetos, categorias, filtros, histórico, notificações e analítico. Manter regras de negócio testáveis sem subir toda a aplicação.
+Organizar o backend por capacidades de negócio, como acesso, tarefas, projetos, categorias, filtros, histórico, notificações e analítico. Essas capacidades orientam a definição dos módulos; a lista não obriga criar um módulo separado para cada uma. Aplicar internamente as responsabilidades de domínio, aplicação e adaptadores/infraestrutura, mantendo regras de negócio e casos de uso testáveis isoladamente.
+
+Organizar o frontend por funcionalidades, com apresentação, estado e acesso à API separados conforme a necessidade, sem reproduzir obrigatoriamente as camadas do backend.
 
 Uma API interna conecta interface e backend. A proposta é publicar futuramente o frontend compilado junto ao Spring Boot, com uma origem única. Servidores de desenvolvimento separados podem ser usados localmente com encaminhamento de requisições.
 
@@ -50,9 +89,11 @@ Entidades/conjuntos principais:
 - Evento de histórico e contexto da conclusão.
 - Inscrição de push e registro de agendamento/tentativas.
 
-Projetos, tarefas e demais recursos pertencem à conta técnica. Identificadores opacos não substituem autorização: cada leitura e alteração verifica o vínculo com a conta autenticada.
+Projetos, tarefas e demais recursos pertencem à conta técnica. Identificadores opacos não substituem autorização: a camada de aplicação verifica o vínculo com a conta autenticada em cada leitura e alteração.
 
-Usar migrações versionadas e restrições de integridade. Estado atual e evento de negócio devem ser consistentes por transação. Duplicidade de associações e de agendamentos precisa de proteção também na persistência.
+Usar migrações versionadas e restrições de integridade. Duplicidade de associações e de agendamentos precisa de proteção também na persistência.
+
+**Confirmado:** alterações de estado, eventos de histórico e contexto de conclusão aplicável são persistidos na mesma transação. A aplicação coordena a operação e seu limite transacional; os adaptadores de persistência efetivam a gravação atômica. Consultas de listagens e analítico podem usar contratos específicos e eficientes, sem reconstruir objetos completos do domínio.
 
 **Confirmado:** descrição da tarefa como BLOB. **Mapeamento proposto para PostgreSQL:** texto na API/interface, codificado em UTF-8 e armazenado como bytes em coluna `bytea`, aplicando a proteção de conteúdo proposta abaixo. O PostgreSQL oferece [`bytea` para dados binários](https://www.postgresql.org/docs/current/datatype-binary.html), sem exigir um tipo SQL chamado `BLOB`. Validar o mapeamento pelo ORM e a recuperação integral de textos longos, acentos e quebras de linha. Não adicionar upload de arquivos por causa desse campo.
 

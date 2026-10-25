@@ -9,7 +9,7 @@ Registro inicial: 24/10/2026. Fonte das confirmações: instruções do usuário
 | DC-01 | Nome do produto: NexoTodo. | Nome utilizado na documentação e futuras entregas. |
 | DC-02 | Diretório informado: `/Users/ederrodrigues/Documents/projects/NexoTodo`. | Manter os documentos do projeto em `docs/`. |
 | DC-03 | Uso individual com login. | Sem colaboração ou cadastro público no MVP. |
-| DC-04 | Java 21 LTS/Spring Boot, React/TypeScript/Vite, PostgreSQL, monorepo. | Java 21 fixado; suporte e versões das demais ferramentas conforme DC-19 e Arquitetura. |
+| DC-04 | GraalVM CE `21.0.2-graalce`/Java 21 LTS, Spring Boot 4.1.2, Gradle com DSL Groovy; última versão estável do React com TypeScript/Vite; PostgreSQL; monorepo. | Stack e DSL de build definidas; versão exata do Gradle e modalidade de suporte Spring continuam pendentes. |
 | DC-05 | Criar, alterar, cancelar, concluir e reabrir tarefas concluídas. | Ciclo de vida e histórico fazem parte do MVP. |
 | DC-06 | Reabrir também após cancelamento. | Cancelamento não é exclusão definitiva. |
 | DC-07 | Projetos, Inbox, categorias múltiplas e filtros salvos. | Organização e recuperação fazem parte do MVP. |
@@ -24,19 +24,31 @@ Registro inicial: 24/10/2026. Fonte das confirmações: instruções do usuário
 | DC-16 | Aplicação web responsiva, sem app mobile nativo. | Validar desktop e celular. |
 | DC-17 | Apenas planejamento neste momento; não baixar Java ou Spring. | Não implementar, instalar dependências ou iniciar serviços agora. |
 | DC-18 | Não criar repositório remoto agora. | A existência do Git local não revoga essa restrição. |
-| DC-19 | Java 21 LTS e exigência de versões com suporte prolongado para Spring e React. | Java 21 mantido por escolha explícita; modalidade de suporte do Spring e adequação do requisito para React precisam ser resolvidas conforme as políticas oficiais. |
-| DC-20 | Branch principal `main` e Trunk Based Development. | `main` como única branch permanente de desenvolvimento, com branches curtas e PRs; sem `develop` permanente. |
+| DC-19 | Java 21 LTS; suporte prolongado do Spring; usar a última versão estável do React. | GraalVM CE `21.0.2-graalce` fixado; verificar manutenção/compatibilidade do JDK escolhido e suporte Spring antes da implementação; React deve ser a versão estável mais recente quando P0-04 iniciar. |
+| DC-20 | Branch local principal `main`, acompanhando `origin/main`, branch principal/padrão do repositório remoto; Trunk Based Development. | `main` como única branch permanente local de desenvolvimento, com branches curtas e PRs para `origin/main`; sem `develop` permanente. Preservar o upstream remoto. |
 | DC-21 | Repositório remoto inicialmente público. | Planejar proteção de `main` e manter dados/segredos fora do Git; não implica publicação da aplicação. Remoto local configurado: `https://github.com/ERodrigues/NexoTodo.git`. |
 | DC-22 | Push apenas pelo navegador na primeira versão. | Web Push com service worker e permissão; selecionar navegador/sistema compatíveis, sem canal nativo. |
 | DC-23 | Fuso de São Paulo, informado como “America/SP”. | Usar o identificador IANA `America/Sao_Paulo` em lembretes, datas de negócio e analítico; instantes continuam em UTC. |
 | DC-24 | Política de senhas fortes. | Exigir força no provisionamento e na redefinição; critérios concretos propostos em Arquitetura. |
 | DC-25 | Título da tarefa até 100 caracteres; descrição como campo BLOB; nome de projeto até 100; nome de categoria até 50. | Aplicar limites na criação/edição/renomeação sem truncamento; descrição longa com mapeamento PostgreSQL e limite técnico de payload a detalhar. |
+| DC-26 | Adoção de Clean Architecture no monólito modular por capacidades de negócio. | Separar domínio, aplicação e adaptadores/infraestrutura; dependências voltadas ao núcleo e contratos definidos por ele. Aplicação coordena autorização por conta e limites transacionais; estado, histórico e contexto de conclusão aplicável são persistidos atomicamente. Diretrizes completas em [Arquitetura](03-arquitetura-e-seguranca.md). |
+| DC-27 | Distribuição e versão do Java: GraalVM Community Edition `21.0.2-graalce`. | Manter a versão exata nas definições e verificar compatibilidade, manutenção e atualizações de segurança antes da base/backend e da publicação. |
+| DC-28 | Usar a última versão estável do React. | Fixar os números exatos compatíveis no P0-04 e registrar lockfile; “última” é determinada quando a base frontend for preparada. |
+| DC-29 | Gradle com DSL Groovy será a ferramenta de build do Java. | Usar scripts `build.gradle` e `settings.gradle`; fixar versão compatível com Java 21 e Spring Boot 4.1.2 e registrar o Gradle Wrapper no P0-03. |
+| DC-30 | Spring Boot 4.1.2. | Usar com a versão GraalVM Java 21 e Gradle compatível conforme [requisitos oficiais](https://docs.spring.io/spring-boot/system-requirements.html); definir modalidade de suporte antes do P0-03. |
+| DC-31 | Google Chrome como navegador padrão para uso e validação da aplicação. | Priorizar a matriz Web Push e a validação local no Chrome; definir plataforma/versão de teste antes do P0-06. |
+| DC-32 | `origin/main` é a branch principal/padrão do repositório remoto. | Manter `main` local acompanhando `origin/main`; não remover ou renomear a branch/upstream remotos. Sincronizar e confirmar a configuração remota antes das PRs. |
+
+DC-26 está **confirmada** e orienta as futuras implementações. Inclui abstrações apenas para fronteiras relevantes, módulos sem fragmentação excessiva, consultas eficientes sem reconstrução obrigatória de objetos completos do domínio, testes de integração complementares e frontend por funcionalidades com apresentação, estado e acesso à API separados. O custo de contratos e conversões será controlado evitando camadas, abstrações genéricas e infraestrutura antecipada. A restrição de apenas planejamento permanece vigente.
 
 ### Esclarecimentos técnicos das confirmações
 
-- Java 21 é LTS, mas a LTS mais recente é Java 25, segundo o [roadmap da Oracle](https://www.oracle.com/java/technologies/java-se-support-roadmap.html), consultado em 24/10/2026. A decisão continua sendo Java 21.
+- Java 21 é LTS, mas a LTS mais recente é Java 25, segundo o [roadmap da Oracle](https://www.oracle.com/java/technologies/java-se-support-roadmap.html), consultado em 24/10/2026. A escolha confirmada é especificamente GraalVM CE `21.0.2-graalce`; conferir compatibilidade e manutenção sem substituir silenciosamente essa versão.
 - A [política do Spring](https://spring.io/support-policy/) distingue suporte OSS de suporte enterprise estendido. Escolher a linha e a modalidade antes da base backend; não considerar suporte comercial contratado.
-- O React não oferece linha LTS oficial em sua [política de versões](https://react.dev/community/versioning-policy). A proposta DP-11 resolve a intenção de estabilidade, mas a adequação deve ser decidida antes da base frontend.
+- O React não oferece linha LTS oficial; sua [política de versões](https://react.dev/community/versioning-policy) identifica a versão estável. A decisão é usar a última versão desse canal no início do P0-04.
+- A [matriz oficial do Gradle](https://docs.gradle.org/current/userguide/compatibility.html) indica suporte para executar Gradle em Java 21 desde Gradle 8.5; definir a versão exata na preparação técnica.
+- Os requisitos oficiais do Spring Boot 4.1.2 aceitam Java 21 e Gradle 8.14+ (8.x) ou 9.x. Portanto, esse requisito define o mínimo do Gradle para a base, e prevalece sobre o mínimo geral de Gradle para Java 21.
+- A DSL Groovy do Gradle usa `build.gradle` e `settings.gradle`; a extensão `.gradle.kts` corresponde à DSL Kotlin, que não foi escolhida.
 - “America/SP” representa a intenção de fuso São Paulo; a configuração usará `America/Sao_Paulo`.
 
 ## Propostas registradas, ainda revisáveis
@@ -53,7 +65,6 @@ Registro inicial: 24/10/2026. Fonte das confirmações: instruções do usuário
 | DP-08 | Criptografia autenticada de conteúdo textual, histórico e segredos de push, além das credenciais. | Antes de persistir dados de uso real. |
 | DP-09 | Preservar commits na integração; aprovação do usuário antes do merge. | Antes da primeira integração. |
 | DP-10 | Publicar futuramente interface e API juntas, com origem única. | Antes da preparação de publicação. |
-| DP-11 | React em versão estável atual, com correções de segurança e compatível com TypeScript/Vite, como adequação à ausência de LTS oficial. | Antes de P0-04. |
 | DP-12 | Senhas de 15 a 128 caracteres, permitindo frases-senha/Unicode e bloqueando senhas comuns ou comprometidas; sem truncamento nem troca periódica arbitrária. | Antes de P1-01; detalhamento em Arquitetura. |
 | DP-13 | Descrição como texto na API e bytes UTF-8 protegidos em `bytea` no PostgreSQL; limites dos campos contados por pontos de código Unicode antes da criptografia. | Antes de P1-04 e dos formulários de projetos/categorias. |
 
@@ -61,10 +72,11 @@ Registro inicial: 24/10/2026. Fonte das confirmações: instruções do usuário
 
 | Item | Por que importa | Deve estar resolvido antes de |
 | --- | --- | --- |
-| Distribuição/patch do JDK 21, linha/modalidade de suporte do Spring, adequação do requisito LTS para React e ferramentas auxiliares compatíveis. | Java 21 já definido; Spring depende da modalidade de suporte e React não tem LTS oficial. | P0-03/P0-04, conforme a camada. |
-| Preparar base `main` para comparação entre branches. | Nome e fluxo já confirmados; documentação inicial permanece em `docs/planejamento-mvp` e uma PR exige base adequada. | Primeira publicação de PR. |
-| Verificar configuração de `main`, visibilidade e proteções no GitHub. | Remoto local e intenção de repositório público conhecidos; ainda é necessário validar/aplicar as configurações remotas. | Configurar proteções e publicar. |
-| Navegador/sistema operacional e acesso seguro para Web Push. | Canal navegador confirmado; compatibilidade, restrições do iOS e HTTPS/localhost ainda exigem matriz e validação. | P0-06 e validação técnica de push. |
+| Compatibilidade/manutenção da distribuição GraalVM CE Java 21 escolhida; modalidade de suporte do Spring; versão exata do Gradle e ferramentas auxiliares. | GraalVM CE `21.0.2-graalce`, Spring Boot 4.1.2 e Gradle Groovy foram escolhidos; confirmar suporte e fixar Gradle compatível na base técnica. | P0-03. |
+| Confirmar e fixar as versões estáveis compatíveis de React, TypeScript e Vite. | React foi definido como última versão estável; o número exato varia conforme a preparação da base frontend. | P0-04. |
+| Sincronizar `main` local com `origin/main` e confirmar `origin/main` como branch padrão remota. | A branch local `main` existe e acompanha esse upstream, mas o checkout atual não dispõe da referência remota atualizada. Preservar a branch remota. | Primeira publicação de PR. |
+| Verificar visibilidade e proteções de `origin/main` no GitHub. | Repositório inicialmente público e branch principal remota já definidos; confirmar/aplicar proteções antes de publicar. | Configurar proteções e publicar. |
+| Plataforma e versão do Google Chrome para validar Web Push; acesso seguro. | Chrome já está definido como padrão; compatibilidade, restrições do iOS e HTTPS/localhost ainda exigem matriz e validação. | P0-06 e validação técnica de push. |
 | Critérios concretos da senha forte, sessão e limitação de tentativas. | Força já confirmada; política operacional proposta em DP-12 e controles de sessão ainda precisam ser fechados. | P1-01/P1-03. |
 | Limite técnico de payload/volume da descrição BLOB e limites de outros campos, como links/filtros. | Limites de título/projeto/categoria já confirmados; BLOB não determina o tamanho máximo de uma requisição. | Formulários correspondentes, começando por P1-04. |
 | Mecanismo local de segredos e rotação/recuperação. | Proteger e recuperar dados sem versionar chaves. | Persistência protegida e uso real. |
@@ -81,8 +93,9 @@ Não bloquear toda a construção por decisões que só afetam etapas posteriore
 - Validação local após implementação e testes registrada como parte do fluxo de entrega.
 - Restrição de planejamento sem downloads/instalações mantida.
 - Acesso de escrita ao Git local autorizado; branch `docs/planejamento-mvp` criada e documentação registrada em commits pequenos, sem publicação remota.
-- Java 21 LTS definido; exigência de suporte prolongado do Spring/React registrada com as diferenças entre as políticas oficiais.
-- `main`, Trunk Based Development e repositório inicialmente público confirmados; remoto local identificado, sem alteração de configuração remota nesta atualização.
-- Web Push como único canal da primeira versão e fuso `America/Sao_Paulo` confirmados.
+- GraalVM CE `21.0.2-graalce`/Java 21, Spring Boot 4.1.2 e Gradle Groovy definidos; a versão exata do Gradle e modalidade de suporte do Spring permanecem pendentes; React definido como última versão estável.
+- `main` local e `origin/main` principal remota, Trunk Based Development e repositório inicialmente público confirmados; branch local criada, upstream preservado e branch de planejamento mantida. Sincronização/confirmação da configuração GitHub permanece pendente.
+- Web Push como único canal da primeira versão, Chrome como navegador padrão e fuso `America/Sao_Paulo` confirmados.
 - Senhas fortes, título/projeto com até 100 caracteres, categoria com até 50 e descrição BLOB confirmados; backlog e matriz de testes atualizados.
+- Clean Architecture confirmada no monólito modular, com responsabilidades de domínio, aplicação e adaptadores/infraestrutura; autorização por conta na aplicação, atomicidade de estado/histórico/contexto de conclusão, consultas específicas e frontend por funcionalidades. Orientações para agentes, backlog e validação alinhados, sem iniciar implementação.
 - As demais regras detalhadas permanecem propostas quando não confirmadas explicitamente.

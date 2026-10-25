@@ -7,6 +7,7 @@ Status inicial de todos os itens executáveis: **planejado**. Este documento nã
 - Cada item de implementação gera branch curta a partir de `main` e PR de volta para `main`, seguindo Trunk Based Development.
 - Etapas são agrupamentos de resultado, não branches extensas.
 - Testes, segurança e documentação acompanham o comportamento entregue.
+- Aplicar a Clean Architecture confirmada dentro do monólito modular, definindo módulos e contratos conforme responsabilidades e invariantes; evitar fragmentação, camadas e abstrações antecipadas sem necessidade concreta.
 - Validar localmente cada entrega executável após os testes.
 - Planejar em detalhe os próximos itens e refinar os posteriores com o aprendizado do uso.
 - Não fixar datas sem conhecer disponibilidade e capacidade de execução.
@@ -28,14 +29,14 @@ Status inicial de todos os itens executáveis: **planejado**. Este documento nã
 | --- | --- | --- | --- |
 | P0-01 `docs/especificacao-mvp` | Produto, regras, stack, segurança e decisões. | Briefing e confirmações. | Requisitos rastreáveis; decisões confirmadas separadas das propostas; nenhuma funcionalidade anunciada como pronta. |
 | P0-02 `docs/backlog-validacao` | Backlog, TDD, cobertura, PRs e roteiro de validação local. | P0-01. | Primeiras entregas têm escopo, dependência, testes e aceite; usuário entende como acompanhar. |
-| P0-03 `chore/base-backend` | Base Java 21 LTS/Spring Boot e testes/automação pertinentes. | Aprovação do planejamento, ambiente autorizado, base `main` preparada e linha/modalidade de suporte do Spring definida. | JDK 21 com distribuição/patch fixados; Spring compatível com datas e modalidade de suporte documentadas; executa localmente; falha real de teste reprova a verificação; instruções reproduzíveis. |
-| P0-04 `chore/base-frontend` | Base React/TypeScript/Vite e testes/automação pertinentes. | Ambiente autorizado, P0-02 e adequação do requisito LTS do React decidida. | Versões estáveis compatíveis fixadas, sem chamar React de LTS; interface mínima local, responsiva, com verificação pertinente e relatório de cobertura configurado. |
+| P0-03 `chore/base-backend` | Base GraalVM CE `21.0.2-graalce`/Java 21, Spring Boot 4.1.2 e Gradle com DSL Groovy; estrutura Clean Architecture por capacidades e verificações pertinentes. | Aprovação do planejamento, ambiente autorizado, base `main` preparada e modalidade de suporte Spring definida. | GraalVM CE Java 21 e Spring Boot 4.1.2 fixados; Gradle 8.14+ (8.x) ou 9.x compatível e Gradle Wrapper com scripts Groovy registrados; modalidade de suporte documentada; estrutura permite domínio independente de Spring/HTTP/persistência e dependências voltadas ao núcleo, sem regras ou abstrações artificiais; executa localmente; falha real de verificação reprova a etapa; instruções reproduzíveis. |
+| P0-04 `chore/base-frontend` | Base da última versão estável disponível do React, TypeScript/Vite, organizada por funcionalidades, com testes/automação pertinentes. | Ambiente autorizado e P0-02. | Fixar versões estáveis compatíveis e versionar lockfile; apresentação, estado e acesso à API separados conforme a necessidade, sem replicar obrigatoriamente as camadas do backend; interface mínima local, responsiva, com verificação pertinente e relatório de cobertura configurado. |
 | P0-05 `chore/persistencia-local` | PostgreSQL isolado, migrações e teste de integração estrutural. | P0-03. | Migrações reproduzíveis e banco de teste separado; nenhuma credencial real versionada. |
-| P0-06 `docs/viabilidade-push` | Matriz de navegadores/sistemas operacionais e plano de acesso seguro para Web Push, único canal da primeira versão. | Canal navegador confirmado; selecionar navegador/sistema de validação. | Restrições de suporte, service worker, permissão e HTTPS/localhost documentadas, incluindo iOS em aba; roteiro às 9h em `America/Sao_Paulo`. Prova executável, se necessária, vira implementação separada e autorizada. |
+| P0-06 `docs/viabilidade-push` | Matriz de sistemas operacionais e plano de acesso seguro para Web Push no Google Chrome, navegador padrão da aplicação. | Chrome definido como padrão; selecionar plataforma/versão de validação. | Restrições de suporte, service worker, permissão e HTTPS/localhost documentadas, incluindo iOS em aba; roteiro no Chrome às 9h em `America/Sao_Paulo`. Prova executável, se necessária, vira implementação separada e autorizada. |
 
 A documentação pode ser preparada agora como um conjunto coerente e posteriormente organizada em commits pequenos. Branches, commits e publicação de PRs dependem da disponibilidade de escrita no Git local e de uma base/remoto apropriados. Não criar remoto nesta etapa.
 
-Na preparação Git, usar `main` como base e destino das PRs e o repositório inicialmente público já definido. O remoto local configurado é `origin` (`https://github.com/ERodrigues/NexoTodo.git`); preparar a base e verificar as configurações antes da primeira publicação.
+Na preparação Git, usar `origin/main` como branch principal remota e `main` como sua cópia local; abrir PRs para a branch remota principal. Preservar o upstream `origin/main`. O remoto configurado é `origin` (`https://github.com/ERodrigues/NexoTodo.git`) e o repositório será inicialmente público. Confirmar e sincronizar a referência remota antes da primeira publicação de PR.
 
 ## Etapa 1: detalhamento inicial
 
@@ -61,7 +62,7 @@ Na preparação Git, usar `main` como base e destino das PRs e o repositório in
 ### P1-03 — Conta técnica e login
 
 - Branch sugerida: `feat/login-pessoal`.
-- Escopo: provisionamento controlado sem dados pessoais, login/logout, sessão, proteção de endpoints e interface de acesso.
+- Escopo: provisionamento controlado sem dados pessoais, login/logout, sessão, proteção de endpoints, autorização por conta nos casos de uso da aplicação e interface de acesso.
 - Dependência: P0-04, P0-05, P1-01, P1-02; política de senha/sessão definida.
 - Aceite: acesso válido funciona; inválido e acesso sem sessão são negados; logout invalida sessão; não existe cadastro público ou formulário de dados pessoais; limitação de tentativas e CSRF são verificados.
 - Testes: unitários, integração e jornada principal no navegador.
@@ -91,8 +92,8 @@ Na preparação Git, usar `main` como base e destino das PRs e o repositório in
 - Branch sugerida: `feat/conclusao-historico`.
 - Escopo: concluir, retirar das listas ativas, registrar instante e contexto da conclusão; consultar concluídas e eventos básicos.
 - Dependência: P1-04; contrato inicial do contexto de conclusão para o futuro analítico.
-- Aceite: tarefa aparece no histórico e sai do Inbox; repetição da solicitação não duplica eventos; gravação de estado/evento é atômica.
-- Testes: unitários, integração e jornada de conclusão.
+- Aceite: tarefa aparece no histórico e sai do Inbox; repetição da solicitação não duplica eventos; estado, evento de histórico e contexto de conclusão aplicável são persistidos na mesma transação, coordenada pela aplicação; falha reverte a operação sem registros parciais.
+- Testes: unitários isolados do domínio/aplicação, integração de persistência/transação/concorrência e jornada de conclusão.
 - Validação local: concluir e localizar a tarefa no histórico, inclusive após reinício.
 
 ### P1-07 — Reabrir tarefa concluída
@@ -146,6 +147,8 @@ Dependências:
 Critérios de aceite:
 Cenários de teste e falhas relevantes:
 Campos e regras de segurança envolvidos:
+Responsabilidades de domínio/aplicação/adaptadores e fronteiras relevantes:
+Limite transacional e consultas específicas, quando aplicáveis:
 Roteiro de validação local:
 Branch sugerida:
 Documentos afetados:
