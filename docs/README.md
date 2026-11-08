@@ -1,6 +1,6 @@
 # NexoTodo — documentação do projeto
 
-Atualizado em: 24/10/2026.
+Atualizado em: 08/11/2026.
 
 O NexoTodo é um gerenciador pessoal de tarefas para navegador, inspirado em GTD. Este conjunto de documentos registra o planejamento do MVP; não representa funcionalidades já implementadas.
 
@@ -20,11 +20,11 @@ O NexoTodo é um gerenciador pessoal de tarefas para navegador, inspirado em GTD
 - Produto: **NexoTodo**.
 - Diretório: `/Users/ederrodrigues/Documents/projects/NexoTodo`.
 - Trabalho autorizado nesta etapa: planejar e documentar em `docs/`.
-- Backend definido em GraalVM CE `21.0.2-graalce` (Java 21 LTS), Spring Boot 4.1.2 e Gradle com DSL Groovy; frontend usará a última versão estável do React. Monólito modular com Clean Architecture confirmada; detalhes em [Arquitetura](03-arquitetura-e-seguranca.md).
+- Backend definido em GraalVM CE `21.0.2-graalce` (Java 21 LTS), Spring Boot 4.1.2 e Gradle com DSL Groovy; frontend usará as últimas versões estáveis compatíveis de React, TypeScript e Vite disponíveis quando a base for criada. Monólito modular com Clean Architecture confirmada; detalhes em [Arquitetura](03-arquitetura-e-seguranca.md).
 - Fluxo definido: `main` local acompanha `origin/main`, branch principal/padrão remota; Trunk Based Development e repositório inicialmente público.
 - Push da primeira versão via navegador; fuso `America/Sao_Paulo`.
 - Navegador padrão para uso e validação: Google Chrome.
-- Senhas fortes; título e projeto até 100 caracteres, categoria até 50 e descrição em BLOB.
+- Política simples de senha para o MVP; textos de conteúdo até 500 caracteres, preservando os limites menores de título/projeto (100) e categoria (50); descrição em BLOB.
 - Não baixar ou instalar Java, Spring Boot ou outras dependências nesta etapa.
 - Não implementar funcionalidades nem iniciar serviços nesta etapa.
 - A existência do diretório e do Git local não autoriza criar um repositório remoto.
