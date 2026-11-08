@@ -48,7 +48,7 @@ Proposta de integração: preservar os commits para consulta da evolução, em v
 
 Planejar proteção de `main` no repositório público contra alterações diretas e exigir as verificações pertinentes, validando os recursos disponíveis ao configurar o GitHub. Uma conta pessoal desenvolvendo sozinha pode não conseguir formalizar autoaprovação no GitHub; a validação registrada pelo usuário continua sendo necessária.
 
-O planejamento inicial permanece na branch local `docs/planejamento-mvp`. A branch local `main` foi criada no commit atual, preservando a branch de planejamento, e está configurada para acompanhar `origin/main`, que deve ser a branch padrão/principal do remoto. O checkout atual ainda não tem uma referência remota `origin/main` disponível (`git status` reporta upstream ausente); isso não apaga nem desautoriza a branch remota. Antes da primeira PR, sincronizar e confirmar que `origin/main` está configurada como branch padrão do remoto. Esta atualização não publica commits nem altera a configuração remota.
+O planejamento permanece na branch `docs/planejamento-mvp`, preservada separadamente de `main`. Estado verificado em 08/11/2026: `main` local acompanha `origin/main` no commit `445793e`; o GitHub confirma `main` como branch padrão, repositório público e proteção habilitada para `main`. A configuração consultada não lista verificações obrigatórias. A comparação remota confirma `docs/planejamento-mvp` com um commit à frente e nenhum atrás de `main`. Definir verificações obrigatórias quando os fluxos de CI forem configurados. A integração continua sujeita à validação e aprovação do usuário; não fazer merge automático.
 
 ## Política de cobertura proposta
 
