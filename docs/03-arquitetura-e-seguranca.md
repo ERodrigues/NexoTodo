@@ -5,21 +5,21 @@
 | Camada | Tecnologia |
 | --- | --- |
 | Backend | GraalVM Community Edition (`21.0.2-graalce`) com Java 21 LTS, Spring Boot 4.1.2 e Gradle com DSL Groovy. |
-| Frontend | Última versão estável do React, com TypeScript e Vite. |
+| Frontend | Últimas versões estáveis compatíveis de React, TypeScript e Vite disponíveis ao criar a base. |
 | Persistência | PostgreSQL. |
 | Organização | Monorepo e monólito modular por capacidades de negócio, com Clean Architecture. |
 
-Distribuição e versão do Java fixadas por decisão do usuário em GraalVM Community Edition `21.0.2-graalce`. Spring Boot 4.1.2 e Gradle com DSL Groovy também estão definidos. Escolher a versão do Gradle e registrar o Gradle Wrapper na preparação técnica. A modalidade de suporte Spring continua pendente. Não baixar dependências nesta etapa de planejamento.
+Distribuição e versão do Java confirmadas para o MVP pelo usuário: GraalVM Community Edition `21.0.2-graalce`. Spring Boot 4.1.2 e Gradle com DSL Groovy também estão definidos. Escolher a versão do Gradle e registrar o Gradle Wrapper na preparação técnica. A modalidade de suporte Spring continua pendente. Não baixar dependências nesta etapa de planejamento.
 
 ### Política de versões e suporte
 
 Verificação das fontes oficiais em 24/10/2026:
 
-- **Java:** usar GraalVM Community Edition `21.0.2-graalce`, fixado pelo usuário. As [notas e o calendário oficiais do GraalVM](https://www.graalvm.org/release-notes/JDK_21/) registram essa distribuição JDK 21 e versões posteriores. Confirmar compatibilidade com Spring/Gradle e situação de manutenção/atualizações de segurança antes da base e novamente antes de produção; preservar a versão escolhida, registrando qualquer necessidade de revisão para decisão do usuário.
+- **Java:** usar GraalVM Community Edition `21.0.2-graalce`, escolha confirmada para o MVP. Antes de P0-03, verificar que a versão executa com Spring Boot 4.1.2 e o Gradle escolhido; antes de usar com dados reais, revisar avisos de segurança e manutenção. Essa revisão não autoriza trocar a versão sem nova decisão do usuário.
 - **Gradle:** usar Gradle com DSL Groovy, por meio de scripts `build.gradle` e `settings.gradle` (sem DSL Kotlin nos scripts deste build). A [matriz oficial de compatibilidade](https://docs.gradle.org/current/userguide/compatibility.html) indica suporte para executar Gradle em Java 21 a partir da versão 8.5.
 - **Spring:** Spring Boot **4.1.2** está fixado pelo usuário. Os [requisitos oficiais do Spring Boot 4.1.2](https://docs.spring.io/spring-boot/system-requirements.html) incluem Java 21 e Gradle 8.14 ou posterior na linha 8.x, ou Gradle 9.x. Fixar uma dessas versões compatíveis, registrar o Gradle Wrapper e conferir as datas/modalidade de suporte antes do P0-03. A [política oficial](https://spring.io/support-policy/) distingue suporte OSS do enterprise estendido; não presumir que suporte enterprise implica patches públicos gratuitos. Spring Framework e dependências seguem as versões gerenciadas pelo Spring Boot.
 - **GraalVM e imagens nativas:** a aplicação está definida para a distribuição Java escolhida. Spring Boot 4.1.2 lista GraalVM 25 para gerar Native Images; geração de imagem nativa não foi definida como requisito. Não a introduzir na base sem reavaliar essa compatibilidade e a versão de Java escolhida.
-- **React:** usar a última versão estável disponível quando a base frontend for criada, conforme decisão do usuário. A [política oficial](https://react.dev/community/versioning-policy) distingue o canal estável dos canais instáveis e segue versionamento semântico; React não publica uma linha LTS. Fixar as versões exatas compatíveis de `react`, `react-dom`, TypeScript e Vite e versionar o lockfile no P0-04; não usar canary, experimental, beta ou RC como versão estável.
+- **Frontend:** usar as últimas versões estáveis e compatíveis de React, TypeScript e Vite disponíveis quando P0-04 iniciar, conforme decisão do usuário. A [política oficial do React](https://react.dev/community/versioning-policy) distingue o canal estável dos canais instáveis e não publica uma linha LTS. Fixar então as versões exatas, incluindo `react-dom`, e versionar o lockfile; não usar canary, experimental, beta ou RC como versão estável.
 
 Permanece pendente a modalidade de suporte Spring. A versão exata do Gradle será definida pela preparação técnica dentro das versões compatíveis com Java 21 e Spring Boot 4.1.2. Não contratar suporte comercial nem trocar a stack por conta dessa exigência durante o planejamento.
 
@@ -95,9 +95,9 @@ Usar migrações versionadas e restrições de integridade. Duplicidade de assoc
 
 **Confirmado:** alterações de estado, eventos de histórico e contexto de conclusão aplicável são persistidos na mesma transação. A aplicação coordena a operação e seu limite transacional; os adaptadores de persistência efetivam a gravação atômica. Consultas de listagens e analítico podem usar contratos específicos e eficientes, sem reconstruir objetos completos do domínio.
 
-**Confirmado:** descrição da tarefa como BLOB. **Mapeamento proposto para PostgreSQL:** texto na API/interface, codificado em UTF-8 e armazenado como bytes em coluna `bytea`, aplicando a proteção de conteúdo proposta abaixo. O PostgreSQL oferece [`bytea` para dados binários](https://www.postgresql.org/docs/current/datatype-binary.html), sem exigir um tipo SQL chamado `BLOB`. Validar o mapeamento pelo ORM e a recuperação integral de textos longos, acentos e quebras de linha. Não adicionar upload de arquivos por causa desse campo.
+**Confirmado:** descrição da tarefa como BLOB e teto de 500 caracteres para cada valor textual do produto, salvo limites menores já definidos. **Mapeamento proposto para PostgreSQL:** texto na API/interface, codificado em UTF-8 e armazenado como bytes em coluna `bytea`, aplicando a proteção de conteúdo proposta abaixo. O PostgreSQL oferece [`bytea` para dados binários](https://www.postgresql.org/docs/current/datatype-binary.html), sem exigir um tipo SQL chamado `BLOB`. Validar o mapeamento pelo ORM e a recuperação integral do texto, incluindo acentos e quebras de linha. Não adicionar upload de arquivos por causa desse campo.
 
-Título da tarefa e nome de projeto aceitam até 100 caracteres; nome de categoria, até 50. Aplicar os limites ao valor legível antes da criptografia; o tamanho da coluna cifrada não corresponde ao limite de caracteres do formulário. A descrição ainda requer limite técnico de payload/volume antes da implementação.
+Título da tarefa e nome de projeto aceitam até 100 caracteres; nome de categoria, até 50; os demais textos de conteúdo aceitam até 500. Aplicar os limites ao valor legível antes da criptografia; o tamanho da coluna cifrada não corresponde ao limite de caracteres do formulário. O limite agregado do corpo HTTP, se necessário, será configurado como controle técnico de transporte e não altera esses limites de conteúdo.
 
 Conflitos de alteração em duas abas devem ser detectados por versão da tarefa, em vez de sobrescrever mudanças silenciosamente. O mecanismo concreto é proposto para detalhamento antes da edição de tarefas.
 
@@ -107,7 +107,9 @@ Usar base separada e descartável nos testes. Não copiar dados reais para teste
 
 **Confirmado:** MVP individual, com login, sem necessidade de dados pessoais.
 
-**Proposto:** provisionar uma única conta com identificador de acesso não pessoal e senha. Não oferecer cadastro público ou perfil cadastral. O identificador real e a senha não serão documentados nem fixados no código.
+**Confirmado:** o identificador inicial será `admin`; não haverá alteração do identificador no MVP. Como a conta é única e `admin` é um identificador público, a opção mais simples para o MVP é comparar esse valor configurado diretamente, sem cifragem ou índice de busca no banco. A senha permanece secreta e só será armazenada como hash.
+
+**Proposto:** provisionar uma única conta com senha. Não oferecer cadastro público ou perfil cadastral.
 
 O primeiro provisionamento deve ocorrer por procedimento local controlado, após a camada de proteção estar implementada. O método exato de entrada da senha precisa evitar histórico de comandos, logs e arquivos versionados.
 
@@ -117,13 +119,13 @@ Não coletar nome, e-mail, telefone, CPF, endereço ou data de nascimento. Recup
 
 **Confirmado:** exigir senhas fortes no provisionamento e na redefinição.
 
-**Política concreta proposta**, baseada na [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html) para acesso sem MFA:
+**Política simples confirmada para o MVP**, com base nas recomendações atuais da [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html) para acesso sem MFA:
 
 - Entre 15 e 128 caracteres, permitindo frases-senha, espaços e Unicode.
-- Rejeitar senhas comuns, previsíveis ou conhecidas como comprometidas, por lista verificada localmente; não enviar senhas a serviços externos.
+- Não exigir verificação contra uma lista de senhas comprometidas neste MVP; não enviar senhas a serviços externos.
 - Permitir gerenciadores de senha, colar e preenchimento automático; não truncar nem remover espaços da senha silenciosamente.
 - Não exigir trocas periódicas sem indício de comprometimento nem regras arbitrárias de composição como condição isolada de força.
-- Aplicar a validação no backend e informar os critérios na interface. Definir a lista de bloqueio antes de P1-01.
+- Aplicar a validação no backend e informar os critérios na interface. A política prioriza comprimento e não exige regras de composição.
 
 Armazenamento e controles complementares:
 
@@ -132,13 +134,13 @@ Armazenamento e controles complementares:
 - Definir parâmetros e custo com base nas recomendações atuais e na capacidade do ambiente antes da implementação.
 - Não retornar senha ou hash em respostas da API; não registrá-los em logs.
 - Permitir futura atualização dos parâmetros sem recuperar a senha original.
-- Definir limitação de tentativas e respostas de login que não exponham informações desnecessárias.
+- Aplicar limitação temporária simples a tentativas repetidas de login, sem CAPTCHA, MFA ou análise adaptativa no MVP; fixar o limiar antes de P1-03.
 
-## Sessões e autorização propostas
+## Sessões e autorização do MVP
 
-- Preferir sessão no servidor com cookie HttpOnly e SameSite adequado; Secure em ambiente HTTPS.
-- Proteger operações autenticadas contra CSRF e encerrar a sessão no logout.
-- Definir expiração de sessão e limitação de tentativas antes de finalizar o login.
+- Usar sessão no servidor com cookie HttpOnly e SameSite=Lax; marcar Secure fora de localhost, em HTTPS.
+- Expirar a sessão após 30 minutos sem atividade e no máximo 8 horas após o login; invalidar a sessão no servidor ao expirar ou sair.
+- Proteger operações autenticadas contra CSRF.
 - Não persistir credenciais ou tokens de sessão em armazenamento acessível a scripts no navegador.
 - A API deve negar acesso sem autenticação mesmo quando o acesso direto ignora a interface.
 
@@ -146,12 +148,12 @@ Armazenamento e controles complementares:
 
 A ausência de cadastro pessoal reduz a coleta, mas não torna as tarefas anônimas: título, descrição, projeto, categoria ou URL podem conter nomes e outras informações identificáveis.
 
-**Proposta de proteção para o MVP:** criptografar na aplicação os campos textuais de conteúdo persistidos: títulos, descrições, nomes de projetos/categorias/filtros, rótulos e URLs de links, identificador de acesso e valores textuais preservados no histórico/analítico. Proteger também os segredos das inscrições de push.
+**Proposta de proteção para o MVP:** criptografar na aplicação os campos textuais de conteúdo persistidos: títulos, descrições, nomes de projetos/categorias/filtros, rótulos e URLs de links e valores textuais preservados no histórico/analítico. Proteger também os segredos das inscrições de push. O identificador `admin` é público e fixo no MVP; a senha, e não o identificador, é a credencial secreta.
 
 - Usar criptografia autenticada, como AES-GCM, com biblioteca consolidada e nonce único por chave.
 - Não criar algoritmo criptográfico próprio.
-- Guardar versão/identificação da chave para permitir rotação.
-- Para busca exata de identificador ou unicidade de nomes protegidos, avaliar um índice HMAC com chave específica e separada; não manter cópia legível nem hash simples de um identificador previsível. Índices desse tipo revelam igualdade e essa limitação deve ser documentada.
+- Quando a gestão de chaves for definida, guardar versão/identificação da chave para permitir rotação; a operação de rotação fica fora do MVP atual.
+- Para unicidade de nomes protegidos, avaliar um índice HMAC com chave específica e separada; não manter cópia legível nem hash simples de um identificador previsível. Índices desse tipo revelam igualdade e essa limitação deve ser documentada.
 - Filtros por categorias/projeto usam identificadores técnicos. Datas, estados e associações podem permanecer como metadados consultáveis; essa escolha precisa constar no inventário de dados antes de implementar a persistência de conteúdo.
 - Busca textual livre não é requisito do MVP.
 
@@ -159,13 +161,13 @@ O objetivo é proteger o conteúdo em um vazamento isolado do banco/backups sem 
 
 ## Gestão de chaves e segredos
 
-- Produção futura: gerenciador de segredos/chaves separado do banco e do repositório, com permissões mínimas.
-- Ambiente local: mecanismo protegido a definir; nenhum segredo real em arquivos de exemplo, commits, histórico de comandos ou logs.
-- Testes: chaves sintéticas, sem qualquer vínculo com segredos reais.
+- **Processo de ciclo de vida adiado:** geração operacional, recuperação, rotação, backup e descarte de chaves serão definidos numa etapa posterior, antes de qualquer uso com dados reais. A política detalhada fica fora do escopo atual do MVP.
+- Até a definição desse processo, desenvolvimento e validação usam somente dados sintéticos e chaves de teste; não habilitar persistência de conteúdo real.
+- Nenhum segredo real em arquivos de exemplo, commits, histórico de comandos ou logs. Produção futura exigirá gestão de chaves separada do banco e do repositório, com permissões mínimas.
+- Testes usam chaves sintéticas, sem qualquer vínculo com segredos reais.
 - Credenciais do banco, chaves de dados e de push são separadas conforme sua finalidade.
-- Planejar geração, armazenamento, recuperação, rotação e descarte de chaves.
 - A ausência de uma chave não pode fazer a aplicação gravar conteúdo em texto aberto como alternativa.
-- Testar restauração de dados junto à disponibilidade controlada das chaves. Backup sem chave pode ser irrecuperável; backup junto com a chave reduz a proteção pretendida.
+- Backup/restauração e a disponibilidade controlada das chaves serão definidos junto ao processo futuro de gestão; não usar dados reais antes dessa definição.
 
 Não é criptografia de ponta a ponta: a aplicação precisa ler conteúdo autorizado e executar funcionalidades do produto. Alterar esse modelo exige uma decisão arquitetural própria.
 
@@ -195,6 +197,7 @@ Não é criptografia de ponta a ponta: a aplicação precisa ler conteúdo autor
 - [Spring Boot: aplicações web e arquivos estáticos](https://docs.spring.io/spring-boot/reference/web/servlet.html).
 - [React: construção com ferramentas como Vite](https://react.dev/learn/build-a-react-app-from-scratch).
 - [OWASP: armazenamento de senhas](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
+- [OWASP: gestão de sessão](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html).
 - [OWASP: armazenamento criptográfico](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html).
 - [OWASP: logs](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html).
 - [Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API).

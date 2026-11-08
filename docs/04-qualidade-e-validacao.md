@@ -82,19 +82,19 @@ A estrutura concreta e eventuais ferramentas de verificação serão definidas q
 
 | Área | Casos necessários | Evidência principal |
 | --- | --- | --- |
-| Acesso | Senha correta/incorreta; política de senha forte no provisionamento/redefinição, incluindo limites, frases-senha, Unicode e bloqueio de senhas comuns; logout; sessão expirada; requisição sem sessão; limitação de tentativas. | Unitários, integração e jornada de login. |
-| Proteção | Hashes distintos para mesma senha; ausência de segredos nas respostas/logs; conteúdo protegido no banco; detecção de alteração do texto cifrado; falta/rotação de chave. | Unitários e integração com dados sintéticos. |
-| Criação | Apenas título; título em branco; 100 caracteres aceitos e 101 rejeitados; campos opcionais; descrição longa em BLOB com acentos/quebras de linha e recuperação integral; persistência; falha de gravação. | Unitários, integração e jornada. |
-| Edição | Preservar campos não alterados; aplicar limite de título também na edição sem truncamento; descrição longa preservada; histórico consistente; conflito de versão em duas abas. | Unitários e integração. |
+| Acesso | Senha correta/incorreta; limites de 15/128 caracteres; Unicode e espaços; ausência de regras de composição; Argon2id com hashes distintos; logout; expiração após 30 minutos inativos e após 8 horas; CSRF; limitação temporária de tentativas. | Unitários, integração e jornada de login. |
+| Proteção | Ausência de segredos nas respostas/logs; conteúdo cifrado no banco; detecção de alteração do texto cifrado; ausência de chave falha sem gravar texto aberto. Rotação/recuperação de chaves fica fora até a definição do processo. | Unitários e integração com dados e chaves sintéticas. |
+| Criação | Apenas título; título em branco; 100 caracteres aceitos e 101 rejeitados; descrição de 500 aceita e 501 rejeitada; textos opcionais até 500; acentos/quebras de linha e recuperação integral; persistência; falha de gravação. | Unitários, integração e jornada. |
+| Edição | Preservar campos não alterados; aplicar limite de título também na edição sem truncamento; descrição/textos até 500 preservados; histórico consistente; conflito de versão em duas abas. | Unitários e integração. |
 | Estados | Concluir, cancelar, reabrir de ambos; solicitações repetidas; transições inválidas; visibilidade das listas. | Unitários, integração e jornadas. |
 | Projetos | Nome com 100 caracteres aceito e 101 rejeitado na criação/renomeação; associar, transferir, desassociar; projeto arquivado; reabertura com projeto arquivado. | Unitários e integração. |
 | Categorias | Nome com 50 caracteres aceito e 51 rejeitado na criação/renomeação; várias categorias; impedir vínculo duplicado; remover uma sem alterar outras. | Unitários e integração. |
-| Filtros | Conjunção E; nenhuma categoria; combinações; filtro salvo com novas tarefas; nomes alterados. | Unitários e integração. |
-| Links | Adicionar, editar, remover; URL inválida/esquema executável; ausência de acesso automático pelo servidor. | Unitários e interface. |
+| Filtros | Conjunção E; nenhuma categoria; combinações; filtro salvo com novas tarefas; nome com 500 aceito e 501 rejeitado; nomes alterados. | Unitários e integração. |
+| Links | Adicionar, editar, remover; URL e rótulo com 500 aceitos e 501 rejeitados; URL inválida/esquema executável; ausência de acesso automático pelo servidor. | Unitários e interface. |
 | Histórico | Estado, evento e contexto de conclusão aplicável atômicos, inclusive rollback em falha; encerradas filtráveis; múltiplas reaberturas; dados sensíveis protegidos. | Unitários e integração. |
 | Datas e push | `America/Sao_Paulo`, 9h, virada de dia local diferente de UTC; prazo alterado; ausência de prazo; encerramento; reabertura; repetição de execução; falha de provedor; permissão negada ou suporte ausente; service worker. | Unitários com relógio/provedor controlados e validação real de Web Push em navegador compatível. |
 | Analítico | Período/fuso; várias categorias; sem projeto/categoria; canceladas; reaberturas; novo ciclo de conclusão. | Unitários e integração com base conhecida. |
-| Persistência/operação | Migrações; reinício; backup/restauração; chaves disponíveis conforme procedimento. | Integração e validação operacional. |
+| Persistência/operação | Migrações; reinício; persistência apenas de dados sintéticos até o processo de chaves ser definido. Backup/restauração de dados reais fica para essa etapa posterior. | Integração e validação operacional. |
 | Interface | Fluxos em desktop/celular; teclado; rótulos; estados de erro, carregamento e vazio. | Testes de componentes e jornadas selecionadas. |
 
 Mocks não comprovam entrega real de push nem persistência real. Testar cada dependência no nível adequado.

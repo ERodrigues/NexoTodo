@@ -8,7 +8,7 @@ Estas regras detalham os requisitos. As confirmações e as propostas ainda revi
 | --- | --- |
 | Identificador | Técnico, opaco e estável; não derivado da identidade do usuário. |
 | Título | Obrigatório, com até 100 caracteres; espaços em branco não satisfazem a obrigatoriedade. |
-| Descrição | Opcional; conteúdo longo, persistido como BLOB, sem limite de caracteres de negócio definido. |
+| Descrição | Opcional; até 500 caracteres, persistida como BLOB. |
 | Prazo | Data opcional; representa o dia esperado para finalizar, não a conclusão efetiva. |
 | Projeto | Opcional, no máximo um por tarefa. |
 | Categorias | Opcionais, várias por tarefa, sem associações duplicadas. |
@@ -20,7 +20,9 @@ Estas regras detalham os requisitos. As confirmações e as propostas ainda revi
 
 **Confirmado:** os limites são 100 caracteres para título da tarefa, 100 para nome de projeto e 50 para nome de categoria. A descrição é um campo BLOB; isso não inclui upload de arquivos.
 
-**Proposto:** contar pontos de código Unicode no conteúdo legível, com a mesma regra no frontend e no backend, antes da criptografia. Rejeitar valores acima do limite com erro por campo, sem truncar silenciosamente. O armazenamento cifrado deve comportar o acréscimo de tamanho da criptografia. Limites técnicos de payload/volume para a descrição e limites dos demais campos serão definidos antes dos formulários correspondentes; BLOB não significa capacidade ilimitada.
+**Confirmado:** valores textuais inseridos no produto têm limite geral de 500 caracteres, incluindo descrição, filtros, rótulos e URLs de links; títulos de tarefa, nomes de projeto e nomes de categoria mantêm seus limites menores de 100, 100 e 50 caracteres, respectivamente. A senha segue sua política própria e não entra nesse teto geral.
+
+**Regra de validação proposta:** contar pontos de código Unicode no conteúdo legível, de forma igual no frontend e no backend e antes de eventual criptografia. Rejeitar valores acima do limite com erro por campo, sem truncamento. O armazenamento BLOB cifrado deve comportar o acréscimo de tamanho da criptografia; o limite de 500 caracteres não significa capacidade ilimitada para o corpo total de uma requisição.
 
 ## Estados e transições
 

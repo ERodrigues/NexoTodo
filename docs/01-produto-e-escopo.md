@@ -12,7 +12,7 @@ O produto é inspirado no GTD. O MVP prioriza captura, organização e execuçã
 
 O único dado de conteúdo obrigatório ao criar uma tarefa é o título. Classificação e prazo podem ser definidos depois.
 
-**Confirmado:** o MVP não precisa coletar dados pessoais. Não haverá cadastro de nome, e-mail, telefone, CPF, endereço ou perfil pessoal. Um identificador técnico de acesso e uma senha permitem autenticação; o provisionamento dessa conta é proposto no documento de arquitetura.
+**Confirmado:** o MVP não precisa coletar dados pessoais. Não haverá cadastro de nome, e-mail, telefone, CPF, endereço ou perfil pessoal. O login inicial da conta técnica será `admin`; poderá ser alterado em uma evolução futura. O provisionamento da conta é detalhado no documento de arquitetura.
 
 ## Requisitos do MVP
 
@@ -35,7 +35,7 @@ O único dado de conteúdo obrigatório ao criar uma tarefa é o título. Classi
 
 ## Restrições confirmadas
 
-- GraalVM Community Edition `21.0.2-graalce` (Java 21 LTS), Spring Boot 4.1.2 e Gradle com DSL Groovy no backend; última versão estável do React com TypeScript e Vite no frontend; PostgreSQL no banco. A política de suporte do Spring e as versões compatíveis estão em [Arquitetura](03-arquitetura-e-seguranca.md).
+- GraalVM Community Edition `21.0.2-graalce` (Java 21 LTS), Spring Boot 4.1.2 e Gradle com DSL Groovy no backend; últimas versões estáveis compatíveis de React, TypeScript e Vite quando a base frontend for criada; PostgreSQL no banco. A modalidade de suporte do Spring e a versão exata do Gradle estão em [Arquitetura](03-arquitetura-e-seguranca.md).
 - Um monorepo; monólito modular por capacidades de negócio com Clean Architecture, separando domínio, aplicação e adaptadores/infraestrutura, conforme [Arquitetura](03-arquitetura-e-seguranca.md).
 - Desenvolvimento por TDD, com testes unitários para as funcionalidades criadas.
 - Cobertura de testes de pelo menos 85%; a política de medição está proposta em [Qualidade](04-qualidade-e-validacao.md).
@@ -44,7 +44,7 @@ O único dado de conteúdo obrigatório ao criar uma tarefa é o título. Classi
 - Push exclusivamente pelo navegador via Web Push na primeira versão.
 - Navegador padrão para usar e validar a aplicação: Google Chrome.
 - Fuso do MVP: `America/Sao_Paulo` (São Paulo).
-- Senhas fortes; título da tarefa e nome de projeto com até 100 caracteres; nome de categoria com até 50; descrição opcional como conteúdo longo em BLOB.
+- Política simples de senha para o MVP; textos de conteúdo com até 500 caracteres, exceto onde houver limite menor: título de tarefa e nome de projeto até 100, categoria até 50. A descrição é opcional e armazenada como BLOB.
 - Após implementar e obter os resultados dos testes, disponibilizar uma versão local para o usuário testar e validar.
 - Documentação das regras e definições dentro de `docs/`.
 - Proteção de credenciais e de quaisquer dados pessoais que venham a existir em evoluções.

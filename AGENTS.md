@@ -26,7 +26,7 @@ Ainda não existem bases executáveis, comandos de build/teste ou Gradle Wrapper
 ## Stack e organização
 
 - Backend: **GraalVM Community Edition `21.0.2-graalce` (Java 21 LTS), Spring Boot 4.1.2 e Gradle com DSL Groovy** (`build.gradle`, `settings.gradle`). Preserve as versões escolhidas. Defina a versão do Gradle dentro da faixa compatível com Java 21/Spring Boot 4.1.2 e registre o Wrapper; valide manutenção sem trocar silenciosamente a versão do Java. A modalidade de suporte Spring permanece pendente. Imagem nativa não está definida; Spring Boot 4.1.2 lista GraalVM 25 para Native Image, então reavalie compatibilidade antes de considerar essa opção.
-- Frontend: **última versão estável do React disponível quando a base for criada**, com TypeScript e Vite. Fixe versões e lockfile; React não oferece linha LTS oficial.
+- Frontend: **últimas versões estáveis compatíveis de React, TypeScript e Vite disponíveis quando a base for criada**. Fixe versões e lockfile; React não oferece linha LTS oficial.
 - Banco: **PostgreSQL**.
 - Organização: **monorepo e monólito modular por capacidades de negócio, com Clean Architecture**, conforme decisão confirmada em Arquitetura.
 - Estrutura planejada: `backend/`, `frontend/`, `infra/`, `.github/` e `docs/`. Crie essas estruturas apenas quando o trabalho correspondente estiver autorizado.
@@ -46,9 +46,10 @@ Ainda não existem bases executáveis, comandos de build/teste ou Gradle Wrapper
 ## Regras essenciais do produto
 
 - O único conteúdo obrigatório para criar uma tarefa é o título, com até **100 caracteres**; título em branco é inválido.
-- Descrição é opcional e longa, persistida como **BLOB**. O mapeamento para `bytea` no PostgreSQL e o limite técnico de payload são propostas/pendências documentadas; BLOB não inclui upload de arquivos.
+- Cada texto de conteúdo do produto tem até **500 caracteres**, exceto título e nome de projeto (100 cada) e nome de categoria (50). Descrição é opcional e persistida como **BLOB**; o mapeamento para `bytea` no PostgreSQL é proposto. BLOB não inclui upload de arquivos. Senhas e dados técnicos têm limites próprios.
 - Nome de projeto aceita até **100 caracteres**; nome de categoria, até **50**. Respeite os limites também na edição/renomeação, sem truncar silenciosamente.
 - Sem projeto, tarefas abertas ficam no Inbox; uma tarefa tem no máximo um projeto e pode ter várias categorias, sem vínculos duplicados.
+- A conta técnica inicial usa o login `admin`; a alteração do identificador fica fora do MVP.
 - Filtros combinam categorias com **E**. Filtros salvos guardam critérios e recalculam os resultados atuais.
 - Permita concluir, cancelar e reabrir tarefas concluídas ou canceladas, preservando o histórico. Cancelar não é excluir definitivamente.
 - Use **`America/Sao_Paulo`** para datas de negócio, lembretes e períodos do analítico; armazene instantes em UTC. Não configure `America/SP` nem um deslocamento UTC fixo.
@@ -61,9 +62,9 @@ Ainda não existem bases executáveis, comandos de build/teste ou Gradle Wrapper
 - Considere o repositório inicialmente **público**. Versione somente código, documentação, configuração compartilhável e exemplos com dados sintéticos.
 - Não versione credenciais, senhas, hashes reais, cookies, tokens, chaves de criptografia/Web Push, inscrições reais de push, dados do usuário, bancos locais ou backups. Não os exponha em logs, respostas da API ou histórico de comandos.
 - Use variáveis de ambiente ou o mecanismo de segredos definido para a entrega; exemplos como `.env.example` devem conter apenas valores fictícios ou placeholders.
-- Exija senhas fortes no provisionamento e na redefinição. A política de 15 a 128 caracteres é **proposta**, conforme Arquitetura; não a apresente como confirmação do usuário.
+- Para o MVP, a política simples confirmada exige senha de 15 a 128 caracteres, permite espaços/Unicode, não impõe composição nem bloqueio de lista comprometida; sem truncamento. Consulte Arquitetura para sessão e limitação temporária de tentativas.
 - Para senhas, siga a orientação documentada de hash Argon2id com salt individual; não use criptografia reversível ou hash rápido simples. Feche parâmetros antes da implementação.
-- A proposta de proteção do conteúdo usa criptografia autenticada na aplicação e chaves separadas do banco/repositório. Feche o inventário e a gestão de chaves antes de persistir dados reais; não grave conteúdo legível como alternativa à falta de chave.
+- A proteção do conteúdo proposta usa criptografia autenticada na aplicação e chaves separadas do banco/repositório. A gestão de ciclo de vida das chaves será definida depois; até lá use apenas dados sintéticos e chaves de teste. Não persista dados reais nem grave conteúdo legível como alternativa à falta de chave.
 - Verifique autorização por conta em cada recurso; identificadores opacos não substituem controle de acesso. Testes usam banco separado e dados sintéticos.
 - Mantenha migrações SQL, testes, lockfiles e wrappers de build versionáveis. Guarde dumps em diretórios locais ignorados; não ignore genericamente `*.sql` ou `*.jar`.
 - O `.gitignore` não remove arquivos já rastreados nem substitui a revisão de conteúdo antes de publicar.

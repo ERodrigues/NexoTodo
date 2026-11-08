@@ -30,7 +30,7 @@ Status inicial de todos os itens executáveis: **planejado**. Este documento nã
 | P0-01 `docs/especificacao-mvp` | Produto, regras, stack, segurança e decisões. | Briefing e confirmações. | Requisitos rastreáveis; decisões confirmadas separadas das propostas; nenhuma funcionalidade anunciada como pronta. |
 | P0-02 `docs/backlog-validacao` | Backlog, TDD, cobertura, PRs e roteiro de validação local. | P0-01. | Primeiras entregas têm escopo, dependência, testes e aceite; usuário entende como acompanhar. |
 | P0-03 `chore/base-backend` | Base GraalVM CE `21.0.2-graalce`/Java 21, Spring Boot 4.1.2 e Gradle com DSL Groovy; estrutura Clean Architecture por capacidades e verificações pertinentes. | Aprovação do planejamento, ambiente autorizado, base `main` preparada e modalidade de suporte Spring definida. | GraalVM CE Java 21 e Spring Boot 4.1.2 fixados; Gradle 8.14+ (8.x) ou 9.x compatível e Gradle Wrapper com scripts Groovy registrados; modalidade de suporte documentada; estrutura permite domínio independente de Spring/HTTP/persistência e dependências voltadas ao núcleo, sem regras ou abstrações artificiais; executa localmente; falha real de verificação reprova a etapa; instruções reproduzíveis. |
-| P0-04 `chore/base-frontend` | Base da última versão estável disponível do React, TypeScript/Vite, organizada por funcionalidades, com testes/automação pertinentes. | Ambiente autorizado e P0-02. | Fixar versões estáveis compatíveis e versionar lockfile; apresentação, estado e acesso à API separados conforme a necessidade, sem replicar obrigatoriamente as camadas do backend; interface mínima local, responsiva, com verificação pertinente e relatório de cobertura configurado. |
+| P0-04 `chore/base-frontend` | Base das versões estáveis compatíveis mais recentes de React, TypeScript e Vite disponíveis ao iniciar este item, organizada por funcionalidades, com testes/automação pertinentes. | Ambiente autorizado e P0-02. | Fixar as versões apuradas em fontes oficiais e versionar lockfile; apresentação, estado e acesso à API separados conforme a necessidade, sem replicar obrigatoriamente as camadas do backend; interface mínima local, responsiva, com verificação pertinente e relatório de cobertura configurado. |
 | P0-05 `chore/persistencia-local` | PostgreSQL isolado, migrações e teste de integração estrutural. | P0-03. | Migrações reproduzíveis e banco de teste separado; nenhuma credencial real versionada. |
 | P0-06 `docs/viabilidade-push` | Matriz de sistemas operacionais e plano de acesso seguro para Web Push no Google Chrome, navegador padrão da aplicação. | Chrome definido como padrão; selecionar plataforma/versão de validação. | Restrições de suporte, service worker, permissão e HTTPS/localhost documentadas, incluindo iOS em aba; roteiro no Chrome às 9h em `America/Sao_Paulo`. Prova executável, se necessária, vira implementação separada e autorizada. |
 
@@ -43,28 +43,28 @@ Na preparação Git, usar `origin/main` como branch principal remota e `main` co
 ### P1-01 — Proteção de credenciais
 
 - Branch sugerida: `feat/protecao-credenciais`.
-- Escopo: hash Argon2id, verificação, parâmetros configurados e política de senha forte no provisionamento/redefinição; sem cadastro público.
-- Dependência: P0-03 e definição dos parâmetros/política de senha.
-- Aceite: senha válida verifica; inválida falha; senhas iguais geram hashes distintos; política de força definida em [Arquitetura](03-arquitetura-e-seguranca.md) aplicada sem truncamento; senha e hash não são expostos por logs ou contratos da API.
+- Escopo: hash Argon2id, verificação e parâmetros configurados para a política de senha simples confirmada para o MVP; sem cadastro público.
+- Dependência: P0-03; definir custo do Argon2id para o ambiente antes desta implementação.
+- Aceite: senha de 15 e 128 caracteres é aceita; 14 e 129 são rejeitadas; Unicode e espaços são aceitos sem truncamento; senhas iguais geram hashes distintos; senha e hash não são expostos por logs ou contratos da API.
 - Testes: unitários dos comportamentos e teste de integração quando houver persistência.
 - Validação local: entrega técnica, com dados sintéticos e roteiro reproduzível.
 
-### P1-02 — Proteção de conteúdo e gestão local de chaves
+### P1-02 — Proteção de conteúdo com dados sintéticos
 
 - Branch sugerida: `feat/protecao-conteudo`.
-- Escopo: componente de criptografia autenticada, identificação de chave, mecanismo local protegido e aplicação inicial aos campos da conta técnica.
+- Escopo: componente de criptografia autenticada e aplicação a dados sintéticos usando chaves de teste; gestão de ciclo de vida de chaves fica fora do MVP atual.
 - Dependência: P0-03, P0-05 e inventário de campos aprovado.
-- Aceite: conteúdo protegido não aparece legível no banco; alteração do texto cifrado é detectada; falta de chave não grava em texto aberto; recuperação/rotação têm procedimento e teste pertinente.
+- Aceite: conteúdo de teste protegido não aparece legível no banco; alteração do texto cifrado é detectada; falta de chave falha sem gravar texto aberto. Não habilitar dados reais até existir o processo posterior de gestão de chaves.
 - Testes: unitários e integração com chaves fictícias.
 - Validação local: inspecionar apenas registros sintéticos e demonstrar leitura autorizada.
-- Se ficar grande, separar mecanismo criptográfico, aplicação à conta e rotação em PRs próprias; a conta não fica disponível para uso real antes dos controles necessários.
+- Se ficar grande, separar mecanismo criptográfico e aplicação aos campos em PRs próprias. Rotação e recuperação ficam para o processo posterior; não habilitar dados reais antes dele.
 
 ### P1-03 — Conta técnica e login
 
 - Branch sugerida: `feat/login-pessoal`.
 - Escopo: provisionamento controlado sem dados pessoais, login/logout, sessão, proteção de endpoints, autorização por conta nos casos de uso da aplicação e interface de acesso.
-- Dependência: P0-04, P0-05, P1-01, P1-02; política de senha/sessão definida.
-- Aceite: acesso válido funciona; inválido e acesso sem sessão são negados; logout invalida sessão; não existe cadastro público ou formulário de dados pessoais; limitação de tentativas e CSRF são verificados.
+- Dependência: P0-04, P0-05, P1-01, P1-02; política confirmada em [Arquitetura](03-arquitetura-e-seguranca.md) e limiar de tentativas definido.
+- Aceite: acesso válido ao login fixo `admin` funciona; inválido e acesso sem sessão são negados; logout e expiração invalidam a sessão; não existe cadastro público ou formulário de dados pessoais; limitação temporária de tentativas e CSRF são verificados.
 - Testes: unitários, integração e jornada principal no navegador.
 - Validação local: entrar, sair e tentar acessar uma rota protegida com conta fictícia.
 - Se necessário, separar proteção dos endpoints e interface de login; não declarar o fluxo completo antes de ambas.
@@ -72,9 +72,9 @@ Na preparação Git, usar `origin/main` como branch principal remota e `main` co
 ### P1-04 — Criar e listar tarefas no Inbox
 
 - Branch sugerida: `feat/criacao-inbox`.
-- Escopo: criar com título de até 100 caracteres e campos básicos opcionais, incluindo descrição longa em BLOB; listar abertas sem projeto; persistir e registrar criação.
-- Dependência: P1-03, proteção de conteúdo disponível para os campos da tarefa e limite técnico de payload/volume da descrição definido.
-- Aceite: apenas título basta; título em branco ou acima de 100 caracteres falha sem truncamento; descrição longa é recuperada integralmente; tarefa aparece uma vez; recarregar/reiniciar preserva os dados; falha de gravação não cria histórico órfão.
+- Escopo: criar com título de até 100 caracteres e campos básicos opcionais, incluindo descrição de até 500 caracteres em BLOB; listar abertas sem projeto; persistir e registrar criação.
+- Dependência: P1-03, proteção de conteúdo disponível para os campos da tarefa e limite agregado de requisição configurado.
+- Aceite: apenas título basta; título em branco ou acima de 100 caracteres falha sem truncamento; descrição de 500 é aceita e 501 rejeitada, com recuperação integral; tarefa aparece uma vez; recarregar/reiniciar preserva os dados; falha de gravação não cria histórico órfão.
 - Testes: unitários, integração com PostgreSQL e jornada de captura.
 - Validação local: criar tarefas fictícias, testar obrigatoriedade e recuperar após reinício.
 
@@ -83,7 +83,7 @@ Na preparação Git, usar `origin/main` como branch principal remota e `main` co
 - Branch sugerida: `feat/edicao-tarefa`.
 - Escopo: alterar título, descrição e prazo de tarefa aberta; preservar campos não enviados; registrar alterações.
 - Dependência: P1-04.
-- Aceite: alteração persiste respeitando título de até 100 caracteres e descrição BLOB; erro de validação não perde valores nem trunca; histórico corresponde à alteração; conflito entre abas não sobrescreve silenciosamente.
+- Aceite: alteração persiste respeitando título de até 100 caracteres, descrição de até 500 e teto geral dos textos; erro de validação não perde valores nem trunca; histórico corresponde à alteração; conflito entre abas não sobrescreve silenciosamente.
 - Testes: unitários, integração e fluxo principal de edição.
 - Validação local: editar, recarregar, consultar a evidência de alteração e provocar conflito com duas abas.
 
